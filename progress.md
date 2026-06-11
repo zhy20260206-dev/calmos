@@ -1,18 +1,21 @@
 # CalmOS · 项目进度
 
-> 最后更新：2026-06-10 20:30
+> 最后更新：2026-06-11 00:55
 
 ---
 
 ## ✅ 已完成
 
 ### 项目架构
-- 前端：单 HTML 文件 `calmos.html`（`index.html` 为同步副本）
-- 后端：`api/analyze.js` — Vercel Edge Function → DeepSeek `deepseek-chat`
+- 前端：单 HTML 文件 `index.html`（手绘涂鸦设计 + 马卡龙配色）
+- **主 API**：Supabase Edge Function `analyze` → DeepSeek `deepseek-chat`（国内可访问）
+- **备用 API**：`api/analyze.js` — Vercel Edge Function（国内可能受限）
 - 数据库：Supabase PostgreSQL `calmos_sessions` 表
-- 部署方式：Vercel CLI 手动部署 + 本地 `vercel dev` 开发
-- 线上地址：`https://693.vercel.app`（受 vercel.app 域名国内访问影响，建议本地 `vercel dev`）
-- API key (DEEPSEEK_API_KEY) + Supabase Key 存于 Vercel 环境变量，前端零暴露
+- 部署方式：
+  - **主站（国内可访问）**：GitHub Pages `https://zhy20260206-dev.github.io/calmos/`
+  - **备用站**：Vercel `https://693.vercel.app`（vercel.app 域名国内可能受限）
+  - **本地开发**：`PORT=3458 node server.js` → `http://localhost:3458`
+- API key (DEEPSEEK_API_KEY) 存于 Supabase Edge Function Secrets + Vercel 环境变量，前端零暴露
 
 ### 设计语言
 - 手绘涂鸦感：卡片微旋转、blob 形状头像/吉祥物、offset 实色投影、2.5px 黑色描边
@@ -83,24 +86,19 @@
 
 ## 🔲 待完成
 
-### 立即需要
+### 需要用户操作
 | 任务 | 状态 |
 |------|------|
-| 本地 `vercel dev` 走通完整流程（问卷→AI分析→结果→干预→反馈）| 🔲 |
-| 移动端真机测试（iOS Safari / Android Chrome） | 🔲 |
+| 测试 `zhy20260206-dev.github.io/calmos/` 国内访问 | 🔲 |
+| ~~GitHub Pages 部署~~ | ✅ |
+| ~~Supabase Edge Function 部署~~ | ✅ |
 
-### 功能增强
+### 可选增强
 | 任务 | 优先级 |
 |------|--------|
-| 绑定自定义域名解决 vercel.app 国内访问问题 | 高 |
+| 移动端真机测试（iOS Safari / Android Chrome） | 中 |
 | 问卷页增加跳过/暂停功能 | 低 |
-
-### 数据持久化
-| 任务 | 状态 |
-|------|------|
-| Supabase 建表 + RLS | ✅ |
-| 前端 SDK 双写 | ✅ |
-| 跨设备同步 | 中 |
+| 跨设备数据同步（Supabase RLS 强化） | 低 |
 
 ---
 
@@ -108,8 +106,15 @@
 
 ```bash
 cd /home/zhang/coding/6.93
-vercel dev
-# → http://localhost:3000
+PORT=3458 node server.js
+# → http://localhost:3458
 ```
 
-环境变量已在 Vercel 云端配好，`vercel dev` 会自动拉取。
+环境变量从 `.env.local` 自动读取。
+
+## 线上地址
+
+| 地址 | 适用场景 | 国内访问 |
+|------|---------|---------|
+| **https://zhy20260206-dev.github.io/calmos/** | 主站 | ✅ GitHub Pages 通常可访问 |
+| https://693.vercel.app | 备用 | ⚠️ vercel.app 域名可能受限 |

@@ -1,0 +1,17 @@
+{
+  "functions": {
+    "api/analyze.js": {
+      "maxDuration": 60
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/analyze",
+      "destination": "/api/analyze"
+    },
+    {
+      "source": "/api/health",
+      "destination": "/api/analyze"
+    }
+  ]
+}

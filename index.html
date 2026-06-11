@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>CalmOS · 焦虑缓解器</title>
+  <!-- 使用系统字体，避免 Google Fonts 在国内被墙导致白屏 -->
+  <!-- Supabase SDK 异步延迟加载，不阻塞页面渲染 -->
+  <style>
+    :root {
+      --mac-yellow:    #FFEAA7;
+      --mac-yellow-lt: #FFF8DC;
+      --mac-mint:      #A8E6CF;
+      --mac-mint-lt:   #DCF8ED;
+      --mac-green:     #B5EAD7;
+      --mac-green-dk:  #6ECBA4;
+      --mac-blue:      #A8D8EA;
+      --mac-blue-lt:   #DDF0F7;
+      --pop-coral:     #FFB4A2;
+      --pop-coral-lt:  #FFE4DE;
+      --pop-lavender:  #C5B4E3;
+      --pop-lavender-lt:#EDE6F7;
+      --pop-peach:     #FFDAB9;
+      --bg:            #FFFDF9;
+      --card:          #FFFFFF;
+      --ink:           #3E3640;
+      --muted:         #9B929B;
+      --danger:        #FF6B6B;
+      --radius:        16px;
+    }
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+    html, body {
+      height: 100%;
+      background: #F5F0EB;
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+    }
+    #app {
+      min-height: 100vh;
+      max-width: 480px;
+      margin: 0 auto;
+      position: relative;
+      background: var(--bg);
+      border-left: 2.5px solid var(--ink);
+      border-right: 2.5px solid var(--ink);
+    }
+    .hand-font { font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif; }
+    .screen {
+      min-height: 100vh;
+      padding: 24px 20px 80px;
+      display: flex;
+      flex-direction: column;
+    }
+    .sketch-box {
+      background: var(--card);
+      border: 2.5px solid rgba(62,54,64,0.12);
+      border-radius: 16px 16px 16px 4px;
+      padding: 18px;
+      margin-bottom: 14px;
+      transform: rotate(-0.3deg);
+      box-shadow: 2px 2px 0 rgba(62,54,64,0.05);
+    }
+
+    /* Buttons */
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 15px;
+      border: none;
+      border-radius: 14px 14px 14px 4px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      text-align: center;
+      font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+      letter-spacing: 0.04em;
+      transition: all 0.12s;
+    }
+    .btn-primary {
+      background: var(--ink);
+      color: #fff;
+      box-shadow: 3px 3px 0 var(--mac-mint);
+    }
+    .btn-primary:active { transform: translate(1px,1px); box-shadow: 1px 1px 0 var(--mac-mint); }
+    .btn-ghost {
+      background: #fff;
+      color: var(--ink);
+      border: 2.5px solid var(--ink);
+      box-shadow: 2px 2px 0 rgba(62,54,64,0.08);
+    }
+    .btn-fixed {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 40px);
+      max-width: 440px;
+      z-index: 10;
+    }
+
+    /* Typography */
+    h1 { font-size: 22px; font-weight: 900; margin-bottom: 8px; }
+    h2 { font-size: 19px; font-weight: 900; margin-bottom: 8px; }
+    h3 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+    p  { color: var(--muted); margin-bottom: 8px; }
+
+    /* Pills */
+    .pill {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      margin: 3px;
+      border: 2px solid var(--ink);
+      background: var(--mac-mint-lt);
+    }
+
+    /* Progress bar */
+    .progress-bar { height: 6px; background: rgba(62,54,64,0.08); border-radius: 3px; margin-bottom: 24px; border: 1.5px solid rgba(62,54,64,0.1); }
+    .progress-fill { height: 100%; background: var(--mac-mint); border-radius: 2px; transition: width 0.3s ease; }
+
+    /* Back button */
+    .back-btn { background: none; border: none; font-size: 22px; cursor: pointer; padding: 4px 8px 4px 0; color: var(--ink); margin-bottom: 16px; display: inline-block; }
+    .back-btn:active { opacity: 0.5; }
+
+    /* Option buttons */
+    .option-btn {
+      display: block; width: 100%; padding: 14px 16px;
+      border: 2px solid rgba(62,54,64,0.12); border-radius: 12px;
+      background: var(--card); font-size: 14px; font-weight: 600;
+      text-align: left; cursor: pointer; margin-bottom: 9px;
+      color: var(--ink); transition: all 0.15s; transform: rotate(-0.2deg);
+    }
+    .option-btn:nth-child(even) { transform: rotate(0.3deg); }
+    .option-btn:active, .option-btn.selected {
+      background: var(--mac-mint-lt); border-color: var(--ink); font-weight: 700;
+      transform: rotate(0deg) !important; box-shadow: 2px 2px 0 rgba(62,54,64,0.1);
+    }
+    .option-emoji { font-size:18px; margin-right:8px; display:inline-block; width:26px; text-align:center; }
+    .q-header { display:flex; align-items:center; gap:10px; margin-bottom:24px; }
+    .q-emoji {
+      width:44px; height:44px; border-radius:50%; border:2.5px solid var(--ink);
+      display:flex; align-items:center; justify-content:center; font-size:22px;
+      flex-shrink:0; background:var(--mac-yellow-lt); transform:rotate(-3deg);
+      box-shadow:2px 2px 0 rgba(62,54,64,0.08);
+    }
+    .option-color-1 { border-left:4px solid var(--mac-mint); }
+    .option-color-2 { border-left:4px solid var(--mac-blue); }
+    .option-color-3 { border-left:4px solid var(--pop-coral); }
+    .option-color-4 { border-left:4px solid var(--pop-lavender); }
+    .option-color-5 { border-left:4px solid var(--mac-yellow); }
+
+    /* Onboarding */
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: flex-end; z-index: 100; }
+    .modal {
+      background: var(--card); border-radius: 24px 24px 0 0; border-top: 2.5px solid var(--ink);
+      padding: 28px 24px 40px; width: 100%; max-width: 480px; margin: 0 auto;
+      animation: slideUp 0.35s ease;
+    }
+    @keyframes slideUp { from { transform: translateY(100%); opacity:0; } to { transform: translateY(0); opacity:1; } }
+    .emoji-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin: 16px 0; }
+    .emoji-opt {
+      font-size: 28px; text-align: center; padding: 8px 4px;
+      border-radius: 12px 12px 12px 2px; cursor: pointer;
+      border: 2px solid transparent; transition: all 0.2s; background: var(--bg);
+    }
+    .emoji-opt.selected { border-color: var(--ink); background: var(--mac-yellow-lt); }
+    .input-field {
+      width: 100%; padding: 14px 16px; border: 2px solid rgba(62,54,64,0.12);
+      border-radius: 14px 14px 14px 2px; font-size: 16px; outline: none;
+      transition: border-color 0.2s; background: var(--bg); color: var(--ink);
+    }
+    .input-field:focus { border-color: var(--ink); }
+    .input-field.error { border-color: var(--danger); }
+    .error-msg { color: var(--danger); font-size: 13px; margin-top: 6px; font-weight: 600; }
+
+    /* Home */
+    .greeting-block { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 28px; }
+    .user-emoji-blob {
+      width: 54px; height: 54px; border-radius: 54% 46% 58% 42% / 46% 52% 48% 54%;
+      background: var(--mac-yellow); border: 2.5px solid var(--ink);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px; flex-shrink: 0; transform: rotate(-3deg);
+      box-shadow: 2px 2px 0 rgba(62,54,64,0.08);
+    }
+    .greeting-text { font-size: 18px; font-weight: 900; }
+    .tag-strip { display: flex; gap: 7px; margin-bottom: 24px; flex-wrap: wrap; }
+    .tag {
+      padding: 4px 10px; border-radius: 8px 8px 8px 2px;
+      font-size: 11px; font-weight: 700; border: 2px solid var(--ink);
+    }
+    .tag-y { background: var(--mac-yellow); }
+    .tag-m { background: var(--mac-mint); }
+    .tag-b { background: var(--mac-blue); }
+    .history-row {
+      padding: 12px 0; border-bottom: 2px dashed rgba(62,54,64,0.06); font-size: 14px;
+    }
+    .history-row:last-child { border-bottom: none; }
+    .history-date { color: var(--muted); font-size: 12px; }
+    .score-chip {
+      display: inline-block; font-size: 12px; font-weight: 800;
+      background: var(--mac-yellow); border: 2px solid var(--ink);
+      border-radius: 8px; padding: 2px 8px; font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    }
+
+    /* Analysis screen */
+    .analysis-screen {
+      flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+      position:relative; overflow:hidden; min-height:60vh;
+    }
+    .analysis-blob-main {
+      width: 120px; height: 120px;
+      border-radius: 58% 42% 52% 48% / 46% 54% 48% 52%;
+      background: radial-gradient(circle at 35% 35%, var(--mac-mint-lt) 0%, var(--mac-mint) 70%, var(--mac-green-dk) 100%);
+      border: 3px solid var(--ink);
+      animation: blobMorph 4s ease-in-out infinite, blobFloat 3s ease-in-out infinite;
+      position:relative; z-index:2;
+      display:flex; align-items:center; justify-content:center;
+      font-size:42px; box-shadow: 3px 3px 0 rgba(62,54,64,0.1);
+    }
+    .analysis-blob-mini {
+      position:absolute; border-radius:50%; border:2.5px solid var(--ink);
+      animation: miniFloat var(--d) ease-in-out infinite;
+      display:flex; align-items:center; justify-content:center;
+      font-size:20px; z-index:1; opacity:0.75;
+    }
+    @keyframes blobMorph {
+      0%,100% { border-radius: 58% 42% 52% 48% / 46% 54% 48% 52%; transform: scale(1) rotate(0deg); }
+      25% { border-radius: 42% 58% 48% 52% / 54% 46% 52% 48%; }
+      50% { border-radius: 48% 52% 42% 58% / 52% 48% 54% 46%; transform: scale(1.08) rotate(3deg); }
+      75% { border-radius: 52% 48% 58% 42% / 48% 52% 46% 54%; }
+    }
+    @keyframes blobFloat { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-8px);} }
+    @keyframes miniFloat {
+      0%,100%{transform:translate(0,0) scale(1);}
+      25%{transform:translate(8px,-12px) scale(1.1);}
+      50%{transform:translate(-4px,-20px) scale(0.95);}
+      75%{transform:translate(-10px,-6px) scale(1.05);}
+    }
+    .analysis-msg {
+      font-size: 16px; color: var(--ink); text-align: center; font-weight: 700;
+      margin-top:28px; position:relative; z-index:2;
+    }
+    .analysis-msg::after {
+      content:'|'; animation: blink 0.8s step-end infinite; font-weight:400;
+      color: var(--mac-green-dk);
+    }
+    @keyframes blink { 0%,100%{opacity:1;} 50%{opacity:0;} }
+    .analysis-dots {
+      display:flex; gap:8px; margin-top:20px; position:relative; z-index:2;
+    }
+    .analysis-dot {
+      width:10px; height:10px; border-radius:50%; background:var(--mac-mint);
+      border:2px solid var(--ink); animation: dotBounce 1.4s ease-in-out infinite;
+    }
+    .analysis-dot:nth-child(2){animation-delay:0.2s;}
+    .analysis-dot:nth-child(3){animation-delay:0.4s;}
+    @keyframes dotBounce { 0%,80%,100%{transform:scale(0.6);opacity:0.4;} 40%{transform:scale(1);opacity:1;} }
+
+    /* Breathing module */
+    .breathing-screen { flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:28px; }
+    .breath-big-circle {
+      width: 180px; height: 180px;
+      border-radius: 52% 48% 58% 42% / 46% 52% 48% 54%;
+      background: radial-gradient(circle, var(--mac-mint-lt) 0%, var(--mac-mint) 100%);
+      border: 3px solid var(--ink);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; font-weight: 800; color: #1a4a2e;
+      transition: transform 0.5s ease-in-out;
+    }
+    .breath-counter { color: var(--muted); font-size: 14px; font-weight: 600; }
+
+    /* Steps timeline */
+    .step-row { display: flex; gap: 14px; padding: 14px 0; border-bottom: 2px dashed rgba(62,54,64,0.06); cursor:pointer; transition:all 0.2s; }
+    .step-row:last-child { border-bottom: none; }
+    .step-num {
+      width: 32px; height: 32px; border-radius: 50%;
+      background: rgba(62,54,64,0.06); display: flex; align-items: center;
+      justify-content: center; font-weight: 800; font-size: 14px;
+      flex-shrink: 0; color: var(--muted); border: 2px solid rgba(62,54,64,0.1);
+      transition: all 0.25s;
+    }
+    .step-num.active { background: var(--mac-mint); color: #1a4a2e; border-color: var(--ink); }
+    .step-num.done { background: var(--mac-green-dk); color: #fff; border-color: var(--ink); }
+    .step-row.done-row { opacity:0.6; }
+    .step-row.done-row .step-title { text-decoration:line-through; }
+    .step-content { flex: 1; }
+    .step-title { font-weight: 700; font-size: 15px; margin-bottom: 4px; }
+    .step-desc { font-size: 14px; color: var(--muted); }
+    .step-duration { font-size: 11px; color: var(--muted); background: rgba(62,54,64,0.05); border-radius: 99px; padding: 2px 8px; display: inline-block; margin-top: 6px; }
+    .emphasis-text { font-size: 18px; font-weight: 900; text-align: center; line-height: 1.5; padding: 20px 0; color: var(--ink); }
+    .step-hint { font-size:11px; color:var(--muted); text-align:center; margin-top:4px; font-weight:600; }
+
+    /* Scenario cards */
+    .scenario-scroll { display: flex; gap: 12px; overflow-x: auto; padding-bottom: 8px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; margin: 0 -20px; padding: 0 20px 12px; }
+    .scenario-card {
+      min-width: 240px; flex-shrink: 0; scroll-snap-align: start;
+      background: var(--card); border: 2.5px solid rgba(62,54,64,0.12);
+      border-radius: 16px 16px 16px 4px; padding: 18px;
+      box-shadow: 2px 2px 0 rgba(62,54,64,0.05);
+    }
+    .scenario-label { font-size: 11px; font-weight: 800; letter-spacing: 0.05em; margin-bottom: 8px; }
+    .label-good { color: #6ECBA4; }
+    .label-mid { color: #FFA94D; }
+    .label-bad { color: #FF6B6B; }
+
+    /* Compare grid */
+    .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0; }
+    .compare-box { background: var(--bg); border-radius: 12px; padding: 14px; font-size: 14px; border: 2px dashed rgba(62,54,64,0.08); }
+    .compare-label { font-size: 11px; font-weight: 800; color: var(--muted); margin-bottom: 6px; }
+
+    /* Slider */
+    .slider-wrap { margin: 16px 0; }
+    input[type=range] { width: 100%; -webkit-appearance: none; height: 6px; border-radius: 3px; background: rgba(62,54,64,0.1); outline: none; border: 1px solid rgba(62,54,64,0.15); }
+    input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 26px; border-radius: 50%; background: var(--mac-mint); cursor: pointer; border: 2.5px solid var(--ink); }
+    .slider-labels { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-top: 6px; font-weight: 600; }
+    .score-display { font-size: 40px; font-weight: 900; color: var(--ink); text-align: center; margin: 8px 0; font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif; }
+
+    /* Radio */
+    .radio-group { display: flex; gap: 10px; margin: 12px 0; }
+    .radio-opt { flex:1; padding:12px 8px; border:2px solid rgba(62,54,64,0.12); border-radius:12px; text-align:center; font-size:13px; cursor:pointer; transition:all 0.2s; background:var(--card); color:var(--ink); font-weight:600; }
+    .radio-opt.selected { border-color:var(--ink); background:var(--mac-mint-lt); font-weight:700; }
+    .radio-group.error .radio-opt { border-color:var(--danger); }
+
+    /* Safety modal */
+    .safety-modal { position:fixed; inset:0; background:var(--bg); z-index:200; padding:48px 28px; display:flex; flex-direction:column; gap:20px; max-width:480px; margin:0 auto; border-left:2.5px solid var(--ink); border-right:2.5px solid var(--ink); }
+    .safety-icon { font-size:48px; }
+    .hotline-link { display:block; padding:16px; background:var(--mac-yellow-lt); border-radius:12px 12px 12px 2px; font-size:17px; font-weight:700; color:var(--ink); text-decoration:none; text-align:center; margin-bottom:10px; border:2.5px solid var(--ink); }
+
+    /* Module badge */
+    .module-badge { display:inline-flex; align-items:center; gap:6px; background:var(--mac-yellow-lt); border:2px solid var(--ink); border-radius:10px 10px 10px 2px; padding:4px 12px; font-size:12px; font-weight:800; margin-bottom:10px; }
+    .time-badge { font-size:11px; color:var(--muted); background:rgba(62,54,64,0.05); border-radius:99px; padding:2px 10px; display:inline-block; margin-left:6px; }
+
+    /* Reframe */
+    .reframe-box { background:var(--mac-mint-lt); border:2.5px solid var(--ink); border-radius:12px 12px 12px 2px; padding:14px 16px; font-size:15px; margin:12px 0; }
+    .original-thought { background:rgba(62,54,64,0.04); border-radius:12px; padding:14px 16px; font-size:15px; color:var(--muted); margin:12px 0; border:2px dashed rgba(62,54,64,0.1); }
+
+    /* Cognitive reframe redesign */
+    .cog-section { margin-bottom:20px; }
+    .cog-label { font-size:11px; font-weight:800; color:var(--muted); letter-spacing:0.05em; margin-bottom:8px; text-transform:uppercase; }
+    .distortion-tag {
+      display:inline-block; padding:6px 14px; border-radius:99px;
+      font-size:13px; font-weight:700; border:2.5px solid var(--ink);
+      background:var(--pop-coral-lt); transform:rotate(-1deg);
+    }
+    .cog-compare {
+      display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:8px 0;
+    }
+    .cog-compare-box {
+      padding:14px; border-radius:12px; font-size:14px;
+      border:2px dashed rgba(62,54,64,0.12);
+    }
+    .cog-compare-box.fact { background:var(--mac-mint-lt); }
+    .cog-compare-box.twist { background:var(--pop-coral-lt); }
+    .cog-compare-label {
+      font-size:10px; font-weight:800; letter-spacing:0.05em;
+      margin-bottom:6px; text-transform:uppercase;
+    }
+    .compassion-box {
+      background:var(--mac-yellow-lt); border:2.5px solid var(--ink);
+      border-radius:12px 12px 12px 2px; padding:16px; text-align:center;
+      margin:12px 0;
+    }
+    .compassion-label { font-size:11px; font-weight:800; color:var(--muted); margin-bottom:8px; }
+
+    /* Value anchor */
+    .anchor-action { font-size:26px; font-weight:900; color:var(--ink); line-height:1.4; text-align:center; padding:20px 0; font-family:'Nunito','ZCOOL KuaiLe',sans-serif; }
+    .permission-text { font-size:15px; text-align:center; padding:12px 0; font-weight:600; color:var(--mac-green-dk); }
+
+    /* Score compare */
+    .score-compare { display:flex; align-items:center; justify-content:center; gap:16px; margin:12px 0; }
+    .score-before { font-size:28px; font-weight:800; color:var(--pop-coral); }
+    .score-arrow { font-size:22px; color:var(--muted); }
+    .score-after { font-size:36px; font-weight:900; color:var(--mac-green-dk); }
+    .feedback-copy { font-size:15px; color:var(--muted); text-align:center; font-weight:600; }
+
+    /* Doodle decorations */
+    .doodle-star { position:absolute; font-size:16px; color:var(--mac-yellow); text-shadow:1px 1px 0 var(--ink); }
+    .divider-dash { height:1px; background-image:repeating-linear-gradient(90deg,rgba(62,54,64,0.08) 0px,rgba(62,54,64,0.08) 5px,transparent 5px,transparent 10px); margin-bottom:20px; }
+
+    /* Cause banner */
+    .cause-banner {
+      background:var(--pop-coral-lt); border:2.5px solid var(--ink);
+      border-radius:16px 16px 16px 4px; padding:16px 18px; margin-bottom:18px;
+      display:flex; align-items:center; gap:14px; transform:rotate(-0.5deg);
+      box-shadow:3px 3px 0 var(--pop-coral);
+    }
+    .cause-icon { font-size:30px; }
+    .cause-label { font-size:10px; font-weight:800; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:2px; opacity:0.7; }
+    .cause-name { font-size:18px; font-weight:900; font-family:'Nunito','ZCOOL KuaiLe',sans-serif; }
+
+    /* Module cards on result page */
+    .module-card-dot { position:absolute; top:12px; right:14px; width:8px; height:8px; border-radius:50%; background:var(--pop-coral); }
+    .module-icon-box {
+      width:40px; height:40px; border-radius:12px 12px 12px 2px;
+      background:var(--mac-green); border:2.5px solid var(--ink);
+      display:flex; align-items:center; justify-content:center;
+      font-size:18px; flex-shrink:0; transform:rotate(-5deg);
+    }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+
+  <script>
+    const state = {
+      screen:'loading', user:null, answers:{}, currentQ:1,
+      anxietyBefore:7, aiResult:null, activeModule:null,
+      pendingModules:[], currentModuleIdx:0, totalModules:2,
+      supabaseReady:false,
+    };
+
+    // Supabase lazy-load — uses China-friendly CDN mirror, non-blocking
+    let _supabase = null;
+    const SUPABASE_URL = 'https://rjxbcxcnjnwplroytnan.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_zFObYEugRZYsooLN-OxOUQ_9O8OIi5r';
+
+    (function initSupabase(){
+      // Try Supabase CDN first, fall back to unpkg
+      var script=document.createElement('script');
+      script.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+      script.onload=function(){
+        try{
+          _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+          state.supabaseReady=true;
+          console.log('Supabase connected');
+        }catch(e){ console.warn('Supabase init failed:',e.message); }
+      };
+      script.onerror=function(){
+        // Fallback: try unpkg
+        var s2=document.createElement('script');
+        s2.src='https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.min.js';
+        s2.onload=function(){
+          try{
+            _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            state.supabaseReady=true;
+            console.log('Supabase connected (fallback)');
+          }catch(e){ console.warn('Supabase init failed:',e.message); }
+        };
+        document.head.appendChild(s2);
+      };
+      document.head.appendChild(script);
+      // Timeout: if SDK doesn't load in 8s, just work offline
+      setTimeout(function(){
+        if(!_supabase) console.warn('Supabase SDK timeout, using localStorage only');
+      },8000);
+    })();
+
+    let _interval = null;
+    function clearGuard() { if(_interval){clearInterval(_interval);_interval=null;} }
+
+    function loadUser() { try{return JSON.parse(localStorage.getItem('calmos_user'))||null;}catch{return null;} }
+    function saveUser(nickname, emoji) { localStorage.setItem('calmos_user', JSON.stringify({nickname,emoji})); }
+
+    async function loadSessions() {
+      const local=JSON.parse(localStorage.getItem('calmos_sessions')||'[]');
+      if(!_supabase) return local;
+      try{
+        const{data,error}=await _supabase.from('calmos_sessions').select('*').order('created_at',{ascending:false}).limit(10);
+        if(error) throw error;
+        const cloud=(data||[]).map(r=>({
+          id:r.id,date:r.date,keyword:r.keyword,primary_cause:r.primary_cause,
+          anxiety_before:r.anxiety_before,anxiety_after:r.anxiety_after,
+          module_used:r.module_used,helpfulness:r.helpfulness,
+        }));
+        // Merge: cloud + local, deduplicated by id, newest first, cap at 5
+        const merged=[...cloud];
+        for(const l of local){
+          if(!merged.find(m=>m.id===l.id)) merged.push(l);
+        }
+        merged.sort((a,b)=>b.id-a.id);
+        merged.splice(5);
+        return merged;
+      }catch(e){ console.warn('Supabase fetch failed, using localStorage',e.message); return local; }
+    }
+
+    function saveSession(record) {
+      // Always save to localStorage first (sync, instant)
+      const s=JSON.parse(localStorage.getItem('calmos_sessions')||'[]');
+      s.unshift(record); if(s.length>5)s.pop();
+      localStorage.setItem('calmos_sessions',JSON.stringify(s));
+
+      // Dual-write to Supabase in background (non-blocking)
+      if(!_supabase) return;
+      _supabase.from('calmos_sessions').insert({
+        id:record.id, user_id:state.user?.nickname||'anonymous',
+        date:record.date, keyword:record.keyword||'', primary_cause:record.primary_cause||'',
+        anxiety_before:record.anxiety_before, anxiety_after:record.anxiety_after,
+        module_used:record.module_used, helpfulness:record.helpfulness,
+        answers:state.answers||{}, ai_result:state.aiResult||{},
+        created_at:new Date().toISOString(),
+      }).then(({error})=>{
+        if(error) console.warn('Supabase save failed',error.message);
+      }).catch(e=>{ console.warn('Supabase save failed',e.message); });
+    }
+
+    const MODULE_NAMES = { action_plan: '行动计划', uncertainty_management: '不确定性管理', conversation_script: '对话脚本', cognitive_reframe: '认知重构', value_anchor: '价值锚点', breathing: '呼吸稳定' };
+
+    function navigate(screen, patch={}) { clearGuard(); Object.assign(state,patch,{screen}); render(); }
+
+    // Q2 — contextual per Q1 branch (5 options each)
+    const Q2_OPTIONS = {
+      '有件事要做':    ['工作汇报 / 项目 / 截止日期','考试 / 论文 / 学习任务','生活事务（搬家 / 手续 / 账单）','健康相关（运动 / 饮食 / 看病预约）','一直想做但拖着没做的事'],
+      '在等一个结果或回复':        ['面试 / 录取 / 晋升结果','考试 / 竞赛成绩','健康检查 / 病理报告','某个人的回复或态度','审批 / 贷款 / 签证 / 合同'],
+      '跟某个人或某段关系有关':    ['伴侣或暧昧对象','父母或长辈','好友 / 闺蜜 / 兄弟','领导 / 同事 / 合伙人','前任 / 断联的人'],
+      '对自己某件事感到后悔或不满': ['说了某句话，事后很后悔','错过了一个机会，感觉很可惜','做了一个无法挽回的决定','觉得自己一直没有进步','总是拿自己和别人比较'],
+    };
+    // Q4 — path-specific deep dive (skip when Q1=说不清楚)
+    const Q4_OPTIONS = {
+      '有件事要做':    ['完全没思路，不知道从哪下手','有思路，但一直没动手','已经开始了，但卡在中间推不下去','快做完了，但很担心结果不够好'],
+      '在等一个结果或回复':        ['反复预想最坏的结果，脑子停不下来','觉得自己对结果毫无掌控，很无力','不知道还要等多久，时间感很差','怕结果出来后不知道怎么面对'],
+      '跟某个人或某段关系有关':    ['有话想说，但不知道怎么开口','关系出现了裂痕，不知道能不能修复','对方的态度或行为让我看不懂','我可能做了什么让对方不舒服'],
+      '对自己某件事感到后悔或不满': ['脑子里反复回放，但知道已经改不了了','觉得自己真的很差，不只是这一次','想去弥补或修正，但不知道怎么做','怕别人知道，或者担心已经影响了别人对我的看法'],
+    };
+    const Q4_TEXTS = {
+      '有件事要做':    '这件事现在卡在哪里？',
+      '在等一个结果或回复':        '等待过程中，你最难受的是？',
+      '跟某个人或某段关系有关':    '这段关系让你焦虑的，主要是？',
+      '对自己某件事感到后悔或不满': '关于这件事，你现在最卡的是？',
+    };
+    // Q6 — body & emotion signals (5 condensed, mutually exclusive)
+    const Q6_OPTIONS = [
+      '心跳加速、胸闷、呼吸急促',
+      '头痛、胃痛、肌肉紧绷或发抖',
+      '思绪停不下来，反复想同一件事',
+      '疲惫无力，什么都不想干',
+      '说不清的难受，就是浑身不对劲',
+    ];
+
+    const QUESTIONS = [
+      {id:'Q1',text:()=>'现在让你焦虑的，主要是哪类事？',options:()=>['有件事要做','在等一个结果或回复','跟某个人或某段关系有关','对自己某件事感到后悔或不满','说不清楚，就是感觉不太对'],skip:()=>false,type:'choice'},
+      {id:'Q2',text:()=>'这件事主要是关于？',options:(a)=>Q2_OPTIONS[a.Q1]||[],skip:(a)=>a.Q1==='说不清楚，就是感觉不太对',type:'choice'},
+      {id:'Q3',text:()=>'这件事对你最近的影响有多大？',options:()=>['有一点影响，但还能正常做事','有些影响，有时会分神','影响比较大，经常难以集中注意力','影响非常大，几乎做不了其他事'],skip:()=>false,type:'choice'},
+      {id:'Q4',text:(a)=>Q4_TEXTS[a.Q1]||'这件事现在卡在哪里？',options:(a)=>Q4_OPTIONS[a.Q1]||[],skip:(a)=>a.Q1==='说不清楚，就是感觉不太对',type:'choice'},
+      {id:'Q5',text:()=>'关于这件事，你目前是？',options:()=>['没有跟任何人说过','说了，但感觉没有得到真正帮助','身边有人支持，但问题本身还在'],skip:()=>false,type:'choice'},
+      {id:'Q6',text:()=>'焦虑的时候，你的状态更接近哪一种？',options:()=>Q6_OPTIONS,skip:()=>false,type:'choice'},
+      {id:'Q7',text:()=>'你的思绪主要集中在？',options:()=>['过去：反复回放已经发生的事','现在：眼前一堆事乱成一团','未来：一直预想还没发生的事','在过去/现在/未来之间来回跳'],skip:()=>false,type:'choice'},
+      {id:'Q8',text:()=>'现在的你更需要哪种帮助？',options:()=>['先让身体和情绪平静下来','理清楚这件事，找到下一步怎么办','直接开始行动，打破现在的卡住状态','有人陪着，不想一个人扛'],skip:()=>false,type:'choice'},
+      {id:'Q9',text:()=>'这件事困扰你多久了？',options:()=>['今天才有这种感觉','最近几天','已经好几周了','很长一段时间了，记不清从什么时候开始'],skip:()=>false,type:'choice'},
+    ];
+
+    function getQuestionSequence(answers) { return QUESTIONS.filter(q=>!q.skip(answers)).map(q=>q.id); }
+    function getGreeting() { const h=new Date().getHours(); if(h>=5&&h<12)return'早上好'; if(h>=12&&h<18)return'下午好'; return'晚上好'; }
+
+    function buildUserMessage(answers) {
+      const lines=[];
+      const labelMap={Q1:'焦虑类型',Q2:'具体情境',Q3:'影响程度',Q4:'路径深挖',Q5:'社交支持',Q6:'身体情绪信号',Q7:'思维方向',Q8:'此刻需要',Q9:'持续时间'};
+      for(const[k,label]of Object.entries(labelMap)){ if(answers[k]!=null)lines.push(label+'：'+answers[k]); }
+      return'用户问卷答案：\n'+lines.join('\n');
+    }
+
+    // API endpoint: Supabase Edge Function (accessible from China), with local fallback
+    const API_BASE = (function(){
+      if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
+        return '/api/analyze'; // local dev uses Node server or vercel dev
+      }
+      return 'https://rjxbcxcnjnwplroytnan.supabase.co/functions/v1/analyze';
+    })();
+    async function callAnalyzeAPI(userMessage) {
+      const resp = await fetch(API_BASE, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userMessage }),
+      });
+      if (!resp.ok) throw new Error((await resp.json()).error || 'HTTP ' + resp.status);
+      return resp.json();
+    }
+
+    function render() {
+      const a = document.getElementById('app');
+      switch(state.screen){
+        case'onboarding':a.innerHTML=renderOnboarding();attachOnboarding();break;
+        case'home':renderHomeSync();break;
+        case'questionnaire':a.innerHTML=renderQuestionnaire();attachQuestionnaire();break;
+        case'analysis':a.innerHTML=renderAnalysis();startAnalysis();break;
+        case'error':a.innerHTML=renderError();attachError();break;
+        case'results':a.innerHTML=renderResults();attachResults();break;
+        case'intervention':a.innerHTML=renderIntervention();attachIntervention();break;
+        case'feedback':a.innerHTML=renderFeedback();attachFeedback();break;
+        default:a.innerHTML='';
+      }
+    }
+
+    const EMOJIS = ['🐱','🐻','🦊','🐸','🌸','🌙','⭐','🍀','🦋','🌺','🐨','🦁','🐼','🦄','🌻','🍁','🌈','🐧','🦉','🎀'];
+    let _selectedEmoji = EMOJIS[0];
+
+    function renderOnboarding(){
+      return'<div class="overlay"><div class="modal"><h2>欢迎来到 CalmOS <span class="hand-font">✌</span></h2><p>选一个陪你的表情，再告诉我你的昵称。</p><div class="emoji-grid" id="emojiGrid">'+EMOJIS.map((e,i)=>'<div class="emoji-opt'+(i===0?' selected':'')+'" data-emoji="'+e+'">'+e+'</div>').join('')+'</div><input class="input-field" id="nicknameInput" type="text" placeholder="你的昵称（2-8字）" maxlength="8" autocomplete="off" /><div class="error-msg" id="nicknameError" style="display:none"></div><div style="height:16px"></div><button class="btn btn-primary hand-font" id="enterBtn">进入 →</button></div></div>';
+    }
+
+    function attachOnboarding(){
+      _selectedEmoji=EMOJIS[0];
+      document.getElementById('emojiGrid').addEventListener('click',(e)=>{
+        const el=e.target.closest('.emoji-opt'); if(!el)return;
+        document.querySelectorAll('.emoji-opt').forEach(x=>x.classList.remove('selected'));
+        el.classList.add('selected'); _selectedEmoji=el.dataset.emoji;
+      });
+      document.getElementById('enterBtn').addEventListener('click',()=>{
+        const input=document.getElementById('nicknameInput'); const errEl=document.getElementById('nicknameError');
+        const nickname=input.value.trim();
+        if(nickname.length<2||nickname.length>8){input.classList.add('error');errEl.textContent='昵称需要 2–8 个字哦';errEl.style.display='block';return;}
+        input.classList.remove('error');errEl.style.display='none';
+        saveUser(nickname,_selectedEmoji); state.user={nickname,emoji:_selectedEmoji}; navigate('home');
+      });
+      document.getElementById('nicknameInput').addEventListener('input',()=>{document.getElementById('nicknameInput').classList.remove('error');document.getElementById('nicknameError').style.display='none';});
+    }
+
+    function renderHomeSync(){
+      const{nickname,emoji}=state.user;
+      const sessions=JSON.parse(localStorage.getItem('calmos_sessions')||'[]'); // show local data instantly
+      const greet=getGreeting();
+      const completedCount=sessions.length;
+      let avgReduction=0;
+      if(sessions.length>0){
+        avgReduction=Math.round(sessions.reduce((sum,s)=>sum+(s.anxiety_before-s.anxiety_after),0)/sessions.length);
+      }
+      const streakDays=sessions.length>0?Math.min(sessions.length,7):0;
+      const tagsHtml=[
+        streakDays>0?'<span class="tag tag-y">🌿 连续 '+streakDays+' 次</span>':'',
+        completedCount>0?'<span class="tag tag-m">✅ '+completedCount+' 次完成</span>':'',
+        avgReduction>0?'<span class="tag tag-b">📉 焦虑↓'+avgReduction+'%</span>':'',
+      ].filter(Boolean).join('');
+      const historyHtml=sessions.length===0
+        ?'<p style="text-align:center;padding:20px 0;color:var(--muted)">还没有记录，开始你的第一次分析吧 ✨</p>'
+        :sessions.map(s=>'<div class="history-row"><div class="history-date">'+s.date+'</div><div>'+s.primary_cause+' · <span class="score-chip">'+s.anxiety_before+'→'+s.anxiety_after+'</span> · '+s.helpfulness+'</div></div>').join('');
+
+      document.getElementById('app').innerHTML='<div class="screen"><div class="greeting-block"><div class="user-emoji-blob">'+emoji+'</div><div><div class="greeting-text">'+nickname+'，'+greet+'</div><div style="font-size:13px;color:var(--muted)">今天感觉怎么样？</div></div></div><div class="tag-strip">'+tagsHtml+'</div><div style="text-align:center;padding:20px 0 36px"><button class="btn btn-primary hand-font" id="startBtn" style="font-size:19px;padding:18px">✨ 开始分析</button></div><div class="sketch-box"><div class="section-head hand-font" style="font-size:11px;font-weight:800;color:var(--muted);margin-bottom:12px;letter-spacing:0.1em">最近记录</div>'+historyHtml+'<p style="text-align:center;font-size:10px;color:var(--muted);margin-top:10px" id="syncStatus">💻 数据仅保存在本设备</p></div></div>';
+      attachHome();
+      // Async refresh from Supabase
+      syncHomeData(nickname,emoji,greet);
+    }
+
+    async function syncHomeData(nickname,emoji,greet){
+      if(!_supabase) return;
+      try{
+        const sessions=await loadSessions();
+        if(sessions.length>0){
+          const completedCount=sessions.length;
+          let avgReduction=Math.round(sessions.reduce((sum,s)=>sum+(s.anxiety_before-s.anxiety_after),0)/sessions.length);
+          const streakDays=Math.min(sessions.length,7);
+          const tagsHtml=[
+            streakDays>0?'<span class="tag tag-y">🌿 连续 '+streakDays+' 次</span>':'',
+            '✅ '+completedCount+' 次完成',
+            avgReduction>0?'📉 焦虑↓'+avgReduction+'%':'',
+          ].filter(Boolean).join('');
+          const el=document.querySelector('.tag-strip'); if(el) el.innerHTML=tagsHtml;
+          const historyEl=document.querySelector('.sketch-box');
+          if(historyEl){
+            const rows=sessions.map(s=>'<div class="history-row"><div class="history-date">'+s.date+'</div><div>'+s.primary_cause+' · <span class="score-chip">'+s.anxiety_before+'→'+s.anxiety_after+'</span> · '+s.helpfulness+'</div></div>').join('');
+            historyEl.innerHTML='<div class="section-head hand-font" style="font-size:11px;font-weight:800;color:var(--muted);margin-bottom:12px;letter-spacing:0.1em">最近记录</div>'+rows+'<p style="text-align:center;font-size:10px;color:var(--muted);margin-top:10px">☁️ 数据已同步云端</p>';
+          }
+        }
+      }catch(e){ console.warn('Sync failed:',e); }
+    }
+
+    function attachHome(){
+      document.getElementById('startBtn').addEventListener('click',()=>{navigate('questionnaire',{answers:{},currentQ:1,anxietyBefore:7});});
+    }
+
+    const Q_EMOJIS = {Q1:'🧭',Q2:'📌',Q3:'📊',Q4:'🎯',Q5:'🤝',Q6:'💗',Q7:'⏰',Q8:'💡',Q9:'📅'};
+    const OPT_EMOJIS = {
+      Q1:['📋','⏳','💬','🔍','🌫️'],
+      Q2:['💼','📝','🏠','💚','📦','🏥','📧','🎨'],
+      Q3:['💚','💛','🟠','🔴'],
+      Q4:['🤷','🧠','🚧','😰'],
+      Q5:['🔒','💬','🤗'],
+      Q6:['💓','🤕','🧠','😔','🌫️'],
+      Q7:['🔙','📍','🔜','🔄'],
+      Q8:['🧘','🗺️','🏃','🤗'],
+      Q9:['🌤️','📆','🗓️','⏳'],
+    };
+    const OPT_COLORS = ['option-color-1','option-color-2','option-color-3','option-color-4','option-color-5'];
+
+    function renderQuestionnaire(){
+      const seq=getQuestionSequence(state.answers); const qIdx=seq.indexOf('Q'+state.currentQ);
+      const qId='Q'+state.currentQ; const qDef=QUESTIONS.find(q=>q.id===qId);
+      const total=seq.length; const pct=Math.round((qIdx/total)*100);
+      const opts=qDef.options(state.answers);
+      const currentVal=state.answers[qId]||'';
+      const qEmoji=Q_EMOJIS[qId]||'✏️';
+      const optEmojis=OPT_EMOJIS[qId]||[];
+      const optionsHtml=opts.map((o,i)=>{const isSel=o===currentVal;const oe=optEmojis[i]||'';const colorCls=OPT_COLORS[i%OPT_COLORS.length];return'<button class="option-btn '+colorCls+(isSel?' selected':'')+'" data-val="'+o+'"><span class="option-emoji">'+oe+'</span>'+o+'</button>';}).join('');
+      return'<div class="screen"><button class="back-btn" id="backBtn">←</button><div class="progress-bar"><div class="progress-fill" style="width:'+pct+'%"></div></div><div style="font-size:11px;color:var(--muted);margin-bottom:16px;font-weight:700">'+(qIdx+1)+' / '+total+'</div><div class="q-header"><div class="q-emoji">'+qEmoji+'</div><h2 style="margin-bottom:0">'+qDef.text(state.answers)+'</h2></div><div id="optionsWrap">'+optionsHtml+'</div></div>';
+    }
+
+    function attachQuestionnaire(){
+      const seq=getQuestionSequence(state.answers); const qId='Q'+state.currentQ; const qDef=QUESTIONS.find(q=>q.id===qId);
+      document.getElementById('backBtn').addEventListener('click',()=>{const seq2=getQuestionSequence(state.answers);const idx=seq2.indexOf(qId);if(idx<=0){navigate('home');return;}const prevQ=parseInt(seq2[idx-1].replace('Q',''));navigate('questionnaire',{currentQ:prevQ});});
+      if(qDef.type==='choice'){
+        document.querySelectorAll('.option-btn').forEach(btn=>{btn.addEventListener('click',()=>{btn.classList.add('selected');const val=btn.dataset.val;const newAnswers={...state.answers,[qId]:val};state.answers=newAnswers;setTimeout(()=>{const newSeq=getQuestionSequence(newAnswers);const curIdx=newSeq.indexOf(qId);if(curIdx+1<newSeq.length){const nextQ=parseInt(newSeq[curIdx+1].replace('Q',''));navigate('questionnaire',{answers:newAnswers,currentQ:nextQ});}else{navigate('analysis',{answers:newAnswers});}},300);});});
+      }
+    }
+
+    function renderSafety(){
+      return'<div class="safety-modal"><div class="safety-icon">💙</div><h1>你现在需要真人支持</h1><p style="font-size:16px;color:var(--ink)">我没有办法替代专业帮助，但以下资源可以立刻联系到真人。</p><div><a class="hotline-link" href="tel:4001619995">全国心理援助 400-161-9995</a><a class="hotline-link" href="tel:01082951332">北京心理危机研究 010-82951332</a></div><p style="font-size:13px;color:var(--muted)">你不需要一个人扛着。拨出去只需要一秒钟。</p><button class="btn btn-ghost" id="safetyHome">返回主页</button></div>';
+    }
+
+    function attachSafety(){ document.getElementById('safetyHome').addEventListener('click',()=>{navigate('home',{answers:{}});}); }
+
+    const ANALYSIS_MSGS = ['正在理解你的情况…', '识别焦虑来源…', '匹配缓解方式…', '生成你的专属分析…'];
+    const MINI_BLOBS = [
+      {emoji:'💭',color:'var(--mac-yellow)',x:'15%',y:'25%',d:'3.2s'},
+      {emoji:'🔍',color:'var(--mac-blue)',x:'78%',y:'20%',d:'3.8s'},
+      {emoji:'✨',color:'var(--pop-lavender)',x:'82%',y:'62%',d:'2.9s'},
+      {emoji:'💡',color:'var(--pop-coral)',x:'12%',y:'65%',d:'3.5s'},
+      {emoji:'🧠',color:'var(--mac-green)',x:'50%',y:'78%',d:'4.0s'},
+    ];
+    const BLOB_EMOJIS = ['💫','🌟','🎯','💝'];
+    function renderAnalysis(){
+      const miniBlobsHtml = MINI_BLOBS.map(b=>
+        '<div class="analysis-blob-mini" style="left:'+b.x+';top:'+b.y+';background:'+b.color+';--d:'+b.d+';width:44px;height:44px;">'+b.emoji+'</div>'
+      ).join('');
+      const dotsHtml = '<div class="analysis-dots"><div class="analysis-dot"></div><div class="analysis-dot"></div><div class="analysis-dot"></div></div>';
+      return'<div class="screen" style="justify-content:center"><div class="analysis-screen">'+miniBlobsHtml+'<div class="analysis-blob-main">💫</div><div class="analysis-msg" id="analysisMsg">'+ANALYSIS_MSGS[0]+'</div>'+dotsHtml+'</div></div>';
+    }
+    function startAnalysis(){
+      let msgIdx=0,charIdx=0;
+      const msgEl=document.getElementById('analysisMsg');
+      const fullTexts=[...ANALYSIS_MSGS];
+
+      function typeNext(){
+        if(msgIdx>=fullTexts.length) msgIdx=0;
+        const text=fullTexts[msgIdx];
+        if(charIdx<=text.length){
+          if(msgEl) msgEl.textContent=text.slice(0,charIdx);
+          charIdx++;
+          _interval=setTimeout(typeNext, charIdx>text.length?1800:60+Math.random()*40);
+          if(charIdx>text.length){ msgIdx++; charIdx=0; }
+        }
+      }
+      _interval=setTimeout(typeNext,200);
+
+      let blobIdx=0;
+      const blobCycle=setInterval(()=>{
+        blobIdx=(blobIdx+1)%BLOB_EMOJIS.length;
+        const main=document.querySelector('.analysis-blob-main');
+        if(main) main.textContent=BLOB_EMOJIS[blobIdx];
+      },2500);
+
+      const userMsg=buildUserMessage(state.answers);
+      callAnalyzeAPI(userMsg).then(result=>{
+        clearInterval(blobCycle); clearGuard();
+        state.pendingModules=(result.module_details||[]).map((d,i)=>({type:result.recommended_modules[i]?.type||d.type,detail:d}));
+        state.totalModules=state.pendingModules.length||2;
+        navigate('results',{aiResult:result});
+      }).catch(err=>{
+        clearInterval(blobCycle); clearGuard();
+        _errorDetail='错误：'+(err.message||'未知');
+        console.error('API error:',err); navigate('error');
+      });
+    }
+
+    let _errorDetail='';
+    function renderError(){
+      return'<div class="screen" style="justify-content:center;align-items:center;gap:24px"><div style="font-size:48px">😔</div><h2>分析遇到了问题</h2><p style="text-align:center">网络或 API 出了点状况，请稍后重试。</p>'+(state.supabaseReady?'<p style="text-align:center;font-size:12px;color:var(--muted)">☁️ 云端已连接 | '+_errorDetail+'</p>':'<p style="text-align:center;font-size:12px;color:var(--muted)">'+_errorDetail+'</p>')+'<button class="btn btn-primary hand-font" id="retryBtn">重试</button><button class="btn btn-ghost" id="errorHome">返回主页</button></div>';
+    }
+    function attachError(){ document.getElementById('retryBtn').addEventListener('click',()=>navigate('analysis')); document.getElementById('errorHome').addEventListener('click',()=>navigate('home')); }
+
+    function renderResults(){
+      const r=state.aiResult;
+      const evidenceHtml=(r.evidence||[]).map(e=>'<span class="pill">'+e+'</span>').join('');
+      const moduleIcons=['⚡','🌱','🧩','💬','🎯','🌬'];
+      const moduleCardsHtml=(r.recommended_modules||[]).map((m,i)=>{
+        const icon=moduleIcons[i]||'✨';
+        const stepTag=i===0?'<span style="font-size:10px;background:var(--pop-coral);color:#fff;border-radius:99px;padding:2px 8px;margin-left:6px;">第1步</span>':'<span style="font-size:10px;background:var(--mac-blue);color:var(--ink);border-radius:99px;padding:2px 8px;margin-left:6px;">第2步</span>';
+        return'<div class="sketch-box" style="position:relative;'+(i===0?'transform:rotate(0.3deg)':'transform:rotate(-0.4deg)')+'"><div class="module-card-dot"></div><div style="display:flex;align-items:center;gap:10px;margin-bottom:8px"><div class="module-icon-box">'+icon+'</div><div><div style="font-size:10px;font-weight:800;color:var(--muted);letter-spacing:0.08em;text-transform:uppercase">'+(MODULE_NAMES[m.type]||m.type)+stepTag+' <span style="font-size:11px;background:rgba(62,54,64,0.05);border-radius:99px;padding:2px 8px">约 '+m.estimated_minutes+' 分钟</span></div><div style="font-size:14px;font-weight:700">'+m.title+'</div></div></div><p style="margin-bottom:14px;font-size:13px">'+m.reason+'</p><button class="btn btn-primary hand-font btn-start-module" data-idx="'+i+'" style="box-shadow:3px 3px 0 '+(i===0?'var(--mac-mint)':'var(--mac-blue)')+'">Go 开始 →</button></div>';
+      }).join('');
+      return'<div class="screen"><div class="cause-banner"><div class="cause-icon">📋</div><div><div class="cause-label">识别结果</div><div class="cause-name">'+r.primary_cause+'</div></div></div><div class="sketch-box" style="transform:rotate(-0.2deg)"><p style="color:var(--ink);font-size:14px;line-height:1.8">'+r.summary+'</p></div><div style="margin-bottom:16px">'+evidenceHtml+'</div><p style="font-size:12px;color:var(--muted);font-weight:700;margin-bottom:8px;">👇 我们分两步来缓解，点击任意一个开始</p>'+moduleCardsHtml+'<div style="padding:16px 0;font-size:14px;color:var(--muted);text-align:center;line-height:1.7;font-weight:600">'+r.closing_message+'</div></div>';
+    }
+
+    function attachResults(){
+      document.querySelectorAll('.btn-start-module').forEach(btn=>{btn.addEventListener('click',()=>{
+        const idx=parseInt(btn.dataset.idx);
+        const m=state.pendingModules[idx];
+        // Reorder: clicked module first, then the other
+        const otherIdx=idx===0?1:0;
+        const remaining=[state.pendingModules[otherIdx]].filter(Boolean);
+        state.pendingModules=remaining;
+        state.currentModuleIdx=state.totalModules-remaining.length;
+        navigate('intervention',{activeModule:m});
+      });});
+    }
+
+    function renderIntervention(){
+      const{type,detail}=state.activeModule;
+      switch(type){case'action_plan':return renderActionPlan(detail);case'uncertainty_management':return renderUncertaintyManagement(detail);case'conversation_script':return renderConversationScript(detail);case'cognitive_reframe':return renderCognitiveReframe(detail);case'value_anchor':return renderValueAnchor(detail);case'breathing':return renderBreathing();default:return'<div class="screen"><p>未知模块</p></div>';}
+    }
+
+    function stepProgressHtml(){
+      const cur=Math.max(state.currentModuleIdx,1), tot=state.totalModules;
+      const pct=Math.round((cur/tot)*100);
+      const nextLabel=state.pendingModules.length>0?'完成后进入下一步 →':'完成后看效果';
+      return'<div style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:6px"><span>步骤 '+cur+' / '+tot+'</span><span>'+nextLabel+'</span></div><div class="progress-bar"><div class="progress-fill" style="width:'+pct+'%"></div></div></div>';
+    }
+    function ctaLabel(){
+      return state.pendingModules.length>0?'继续下一步 →':'完成 ✓';
+    }
+
+    function attachIntervention(){
+      const{type}=state.activeModule; if(type==='breathing'){startBreathing();return;}
+
+      // Action plan: interactive step checkboxes
+      if(type==='action_plan'){
+        const steps=document.querySelectorAll('.step-row');
+        const totalSteps=steps.length;
+        const cta=document.getElementById('moduleCta');
+        const hint=document.getElementById('stepHint');
+
+        // Store original step numbers for each step
+        const stepNumbers=[];
+        steps.forEach((row,i)=>{
+          const sn=row.querySelector('.step-num');
+          stepNumbers.push(sn?sn.textContent:String(i+1));
+        });
+
+        function refreshAllSteps(){
+          steps.forEach((row,i)=>{
+            const sn=row.querySelector('.step-num');
+            if(_completedSteps.includes(i)){
+              row.classList.add('done-row');
+              if(sn){sn.classList.add('done');sn.classList.remove('active');sn.textContent='✓';}
+            }else{
+              row.classList.remove('done-row');
+              if(sn){sn.classList.remove('done');sn.textContent=stepNumbers[i];}
+            }
+          });
+          // Activate the first incomplete step
+          for(let i=0;i<totalSteps;i++){
+            if(!_completedSteps.includes(i)){
+              const sn=steps[i].querySelector('.step-num');
+              if(sn){sn.classList.add('active');}
+              break;
+            }
+          }
+          // Update hint and CTA
+          const remaining=totalSteps-_completedSteps.length;
+          if(remaining===0){
+            if(cta){cta.style.opacity='1';cta.textContent=ctaLabel();}
+            if(hint) hint.textContent='✅ 全部完成！';
+          }else{
+            if(cta){cta.style.opacity='0.4';cta.textContent='全部完成继续 →';}
+            if(hint) hint.textContent='👆 还剩 '+remaining+' 小步 — 点一下表示完成';
+          }
+        }
+
+        steps.forEach((row,i)=>{
+          row.addEventListener('click',()=>{
+            if(_completedSteps.includes(i)){
+              _completedSteps=_completedSteps.filter(x=>x!==i);
+            }else{
+              _completedSteps.push(i);
+              _completedSteps.sort((a,b)=>a-b);
+            }
+            refreshAllSteps();
+          });
+        });
+
+        if(cta)cta.addEventListener('click',()=>{
+          if(_completedSteps.length<totalSteps) return;
+          if(state.pendingModules.length>0){
+            const next=state.pendingModules.shift();
+            state.currentModuleIdx=state.totalModules-state.pendingModules.length;
+            navigate('intervention',{activeModule:next});
+          }else{
+            navigate('feedback');
+          }
+        });
+        document.querySelectorAll('.copy-btn').forEach(btn=>{btn.addEventListener('click',()=>{const text=btn.dataset.text;navigator.clipboard.writeText(text).then(()=>{btn.textContent='已复制 ✓';setTimeout(()=>btn.textContent='复制这句话',2000);});});});
+        return;
+      }
+
+      const cta=document.getElementById('moduleCta');
+      if(cta)cta.addEventListener('click',()=>{
+        if(state.pendingModules.length>0){
+          const next=state.pendingModules.shift();
+          state.currentModuleIdx=state.totalModules-state.pendingModules.length;
+          navigate('intervention',{activeModule:next});
+        }else{
+          navigate('feedback');
+        }
+      });
+      document.querySelectorAll('.copy-btn').forEach(btn=>{btn.addEventListener('click',()=>{const text=btn.dataset.text;navigator.clipboard.writeText(text).then(()=>{btn.textContent='已复制 ✓';setTimeout(()=>btn.textContent='复制这句话',2000);});});});
+    }
+
+    let _completedSteps = [];
+
+    function renderActionPlan(detail){
+      _completedSteps = [];
+      const keyword=state.answers.Q2||'这件事';
+      const stepsHtml=(detail?.steps||[]).map((s,i)=>'<div class="step-row" data-step="'+i+'" id="stepRow'+i+'"><div class="step-num'+(i===0?' active':'')+'">'+(i+1)+'</div><div class="step-content"><div class="step-title">'+s.title+'</div><div class="step-desc">'+s.description+'</div><span class="step-duration">⏱ '+s.duration_min+' 分钟</span></div></div>').join('');
+      const stepCount=(detail?.steps||[]).length;
+      return'<div class="screen"><button class="back-btn" onclick="navigate(\'results\')">←</button>'+stepProgressHtml()+'<div class="module-badge hand-font">行动计划</div><h1 style="margin-bottom:20px">帮你把「'+keyword+'」拆成几步</h1>'+(detail?.goal_statement?'<p style="font-size:15px;color:var(--ink);margin-bottom:8px">'+detail.goal_statement+'</p>':'')+'<p style="font-size:12px;color:var(--muted);margin-bottom:16px">💡 每做完一小步，点一下它打勾 ✓</p><div class="sketch-box" style="padding:8px 16px" id="stepsBox">'+stepsHtml+'</div><div class="step-hint" id="stepHint">👆 还剩 '+stepCount+' 小步 — 点一下表示完成</div><div style="height:80px"></div><button class="btn btn-primary btn-fixed hand-font" id="moduleCta" style="opacity:0.4;cursor:default">全部完成继续 →</button></div>';
+    }
+
+    function renderUncertaintyManagement(detail){
+      const scenarios=detail?.scenarios||[];
+      const labels=[{key:'good',label:'最好的情况',cls:'label-good'},{key:'mid',label:'中间情况',cls:'label-mid'},{key:'bad',label:'最坏的情况',cls:'label-bad'}];
+      const cardsHtml=labels.map(l=>{const sc=scenarios.find(s=>s.type===l.key)||scenarios[labels.indexOf(l)]||{};return'<div class="scenario-card"><div class="scenario-label '+l.cls+'">'+l.label+'</div><div style="font-size:14px;color:var(--ink)">'+(sc.first_step||'先照顾好今天。')+'</div></div>';}).join('');
+      const actionsHtml=(detail?.waiting_actions||[]).map(a=>'<div class="sketch-box" style="padding:14px 18px;margin-bottom:10px;transform:rotate(0.2deg)">📌 '+a+'</div>').join('');
+      return'<div class="screen"><button class="back-btn" onclick="navigate(\'results\')">←</button>'+stepProgressHtml()+'<div class="module-badge hand-font">不确定性管理</div><h1 style="margin-bottom:20px">等待期间，你还是有选择的</h1><p style="font-size:12px;color:var(--muted);margin-bottom:16px">💡 把"未知"变成"有范围的已知"，焦虑就会减少。</p><div class="scenario-scroll">'+cardsHtml+'</div><div style="height:20px"></div>'+actionsHtml+(detail?.reframe?'<div class="reframe-box">'+detail.reframe+'</div>':'')+'<div class="sketch-box" style="background:var(--mac-blue-lt);border:2px dashed var(--ink);"><p style="font-size:13px;color:var(--ink);font-weight:600;">⏰ 小建议：每天只查看一次相关信息（比如下午5点），打破反复刷新的循环。</p></div><div style="height:80px"></div><button class="btn btn-primary btn-fixed" id="moduleCta">'+ctaLabel()+'</button></div>';
+    }
+
+    function renderConversationScript(detail){
+      const examples=detail?.script_examples||[];
+      const gentle=examples.find(e=>e.type==='温和版')||examples[0]||{};
+      const direct=examples.find(e=>e.type==='直接版')||examples[1]||{};
+      return'<div class="screen"><button class="back-btn" onclick="navigate(\'results\')">←</button>'+stepProgressHtml()+'<div class="module-badge hand-font">对话脚本</div><h1 style="margin-bottom:8px">先准备好怎么开口</h1>'+(detail?.goal?'<p style="font-size:15px;color:var(--ink);margin-bottom:12px">🎯 '+detail.goal+'</p>':'')+'<p style="font-size:12px;color:var(--muted);margin-bottom:16px">💡 使用"我感到…"而不是"你让我…"，降低对方的防御感。</p><div class="sketch-box" style="transform:rotate(0.2deg)"><div style="font-size:11px;font-weight:800;color:var(--mac-green-dk);margin-bottom:8px">🌸 温和版</div><p style="color:var(--ink);font-size:14px">'+(gentle.content||gentle.text||'')+'</p></div><div class="sketch-box" style="transform:rotate(-0.3deg)"><div style="font-size:11px;font-weight:800;color:var(--mac-green-dk);margin-bottom:8px">⚡ 直接版</div><p style="color:var(--ink);font-size:14px">'+(direct.content||direct.text||'')+'</p></div>'+(detail?.channel_advice?'<div class="sketch-box"><p style="color:var(--ink)">💬 '+detail.channel_advice+'</p></div>':'')+'<div class="sketch-box" style="background:var(--pop-coral-lt);border:2px dashed var(--ink);"><p style="font-size:13px;color:var(--ink);font-weight:600;">⏳ 小建议：如果对方没有立刻回复，给自己设"48小时等待期"再决定是否跟进。关系焦虑常让我们反复看手机——48小时是一个温和的边界。</p></div><div style="height:80px"></div><button class="btn btn-primary btn-fixed" id="moduleCta">'+ctaLabel()+'</button></div>';
+    }
+
+    function renderCognitiveReframe(detail){
+      const d=detail||{};
+      const original=d.original_thought||'';
+      const pattern=d.distortion_pattern||'';
+      const fact=d.fact_situation||'';
+      const twist=d.distorted_interpretation||'';
+      const reframed=d.reframed_thought||'';
+      const compassion=d.self_compassion_perspective||'';
+
+      // Fallback: if AI returns old format
+      let factText=fact, twistText=twist;
+      if(!factText&&d.fact_vs_interpretation){
+        factText=d.fact_vs_interpretation.fact||'';
+        twistText=d.fact_vs_interpretation.interpretation||'';
+      }
+      const compassionText=compassion||d.self_compassion_action||'';
+
+      return'<div class="screen"><button class="back-btn" onclick="navigate(\'results\')">←</button>'+stepProgressHtml()+'<div class="module-badge hand-font">认知重构</div><h1 style="margin-bottom:8px">把这个想法拆开看看</h1><p style="font-size:14px;color:var(--muted);margin-bottom:16px">大脑有时会自动给事实"加料"。拆开来看，你会发现真相没那么可怕。</p>'
+        +(original?'<div class="original-thought"><div style="font-size:11px;font-weight:800;color:var(--muted);margin-bottom:4px;">💭 你可能在这样想</div>'+original+'</div>':'')
+        +(pattern?'<div style="margin-bottom:16px"><div class="cog-label">🧠 这是一种常见的思维模式</div><div class="distortion-tag">'+pattern+'</div></div>':'')
+        +('<div class="cog-compare"><div class="cog-compare-box fact"><div class="cog-compare-label" style="color:#1a4a2e;">✅ 事实</div>'+(factText||'（分析中）')+'</div><div class="cog-compare-box twist"><div class="cog-compare-label" style="color:#c0392b;">🎭 大脑加的戏</div>'+(twistText||'（分析中）')+'</div></div>')
+        +(reframed?'<div class="reframe-box"><div style="font-size:11px;font-weight:800;color:var(--mac-green-dk);margin-bottom:4px;">💡 更接近真相的说法</div>'+reframed+'</div>':'')
+        +(compassionText?'<div class="compassion-box"><div class="compassion-label">💬 如果是好朋友经历这件事，你会对ta说</div><p style="font-size:15px;color:var(--ink);font-weight:600;margin-bottom:10px;">'+compassionText+'</p><button class="btn btn-ghost copy-btn" data-text="'+compassionText+'" style="margin:0 auto">📋 复制这句话</button></div>':'')
+        +'<div style="height:80px"></div><button class="btn btn-primary btn-fixed" id="moduleCta">'+ctaLabel()+'</button></div>';
+    }
+
+    function renderValueAnchor(detail){
+      const groundingSteps=[
+        {num:'5',label:'看见',desc:'环顾四周，说出 5 个你看到的东西'},
+        {num:'4',label:'触摸',desc:'感受 4 个你可以摸到的东西（衣服、桌面、手机…）'},
+        {num:'3',label:'听见',desc:'安静下来，听出 3 个声音'},
+      ];
+      const groundingHtml=groundingSteps.map(g=>'<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:2px dashed rgba(62,54,64,0.06)"><div style="width:28px;height:28px;border-radius:50%;background:var(--mac-mint-lt);border:2px solid var(--ink);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:13px;flex-shrink:0">'+g.num+'</div><div><span style="font-weight:700;font-size:13px">'+g.label+'</span><span style="font-size:13px;color:var(--muted)"> — '+g.desc+'</span></div></div>').join('');
+      return'<div class="screen"><button class="back-btn" onclick="navigate(\'results\')">←</button>'+stepProgressHtml()+'<div class="module-badge hand-font">价值锚点</div><h1 style="margin-bottom:8px">'+(detail?.emotion_name||'你现在的感受')+'</h1><p style="font-size:12px;color:var(--muted);margin-bottom:16px">💡 给情绪一个名字，它就已经开始变轻了。</p><p style="margin-bottom:0">今天可以做的一件事：</p><div class="anchor-action">'+(detail?.anchor_action||'')+'</div>'+(detail?.why_this_works?'<div class="sketch-box"><p style="color:var(--ink)">'+detail.why_this_works+'</p></div>':'')+'<div class="sketch-box"><div style="font-size:13px;font-weight:700;margin-bottom:10px;">🧘 快速落地：5-4-3 感官接地</div><p style="font-size:12px;color:var(--muted);margin-bottom:10px;">当脑子停不下来时，试着把注意力拉到当下：</p>'+groundingHtml+'</div>'+(detail?.permission?'<div class="permission-text">"'+detail.permission+'"</div>':'')+'<div style="height:80px"></div><button class="btn btn-primary btn-fixed" id="moduleCta">'+ctaLabel()+'</button></div>';
+    }
+
+    function renderBreathing(){
+      return'<div class="screen" style="justify-content:center"><div class="breathing-screen"><button class="back-btn" onclick="navigate(\'results\')" style="align-self:flex-start">←</button>'+stepProgressHtml()+'<div style="text-align:center"><h2 class="hand-font">呼吸稳定</h2><p>跟着节奏，完成 3 次循环</p></div><div class="breath-big-circle hand-font" id="breathCircle">吸气</div><div class="breath-counter" id="breathCounter">第 1 / 3 次</div></div></div>';
+    }
+
+    function startBreathing(){
+      const PHASES=[{label:'吸气',duration:4,scale:'1.3'},{label:'屏住',duration:7,scale:'1.3'},{label:'呼气',duration:8,scale:'1'}];
+      let cycleCount=0,phaseIdx=0,elapsed=0;
+      const circle=document.getElementById('breathCircle'),counter=document.getElementById('breathCounter');
+      function applyPhase(p){if(circle){circle.textContent=p.label;circle.style.transform='scale('+p.scale+')';}}
+      applyPhase(PHASES[0]);
+      _interval=setInterval(()=>{elapsed++;const phase=PHASES[phaseIdx];if(elapsed>=phase.duration){elapsed=0;phaseIdx++;if(phaseIdx>=PHASES.length){phaseIdx=0;cycleCount++;if(counter)counter.textContent='第 '+Math.min(cycleCount+1,3)+' / 3 次';if(cycleCount>=3){clearGuard();
+        if(state.pendingModules.length>0){
+          const next=state.pendingModules.shift();
+          state.currentModuleIdx=state.totalModules-state.pendingModules.length;
+          navigate('intervention',{activeModule:next});
+        }else{
+          navigate('feedback');
+        }
+      return;}}applyPhase(PHASES[phaseIdx]);}},1000);
+    }
+
+    let _feedbackRating=null;
+
+    function renderFeedback(){
+      const before=state.anxietyBefore;
+      return'<div class="screen"><h1 style="margin-bottom:8px" class="hand-font">做完了，感觉怎么样？</h1><p style="margin-bottom:28px">给现在的焦虑程度打个分。</p><div class="sketch-box" style="transform:rotate(-0.2deg)"><div style="font-size:15px;font-weight:700;margin-bottom:12px">现在焦虑程度</div><div class="score-display" id="sliderVal">5</div><div class="slider-wrap"><input type="range" id="anxietySlider" min="0" max="10" value="5" /><div class="slider-labels"><span>0 完全不焦虑</span><span>10 极度焦虑</span></div></div><div class="score-compare"><span class="score-before">'+before+'</span><span class="score-arrow">→</span><span class="score-after" id="afterScore">5</span></div><div class="feedback-copy" id="feedbackCopy">'+(5<before?'有一点变化，就已经很重要。':'没关系，找到不适合的方法也是进展。')+'</div></div><div class="sketch-box" style="transform:rotate(0.2deg)"><div style="font-size:15px;font-weight:700;margin-bottom:12px">这次有帮助吗？</div><div class="radio-group" id="helpGroup"><button class="radio-opt" data-val="有帮助">有帮助</button><button class="radio-opt" data-val="一般">一般</button><button class="radio-opt" data-val="没什么帮助">没什么帮助</button></div><div class="error-msg" id="helpError" style="display:none">请选择一个选项</div></div><div style="height:80px"></div><button class="btn btn-primary btn-fixed hand-font" id="saveBtn">保存并返回主页</button></div>';
+    }
+
+    function attachFeedback(){
+      _feedbackRating=null;
+      const slider=document.getElementById('anxietySlider'),valEl=document.getElementById('sliderVal'),afterEl=document.getElementById('afterScore'),copyEl=document.getElementById('feedbackCopy'),before=state.anxietyBefore;
+      slider.addEventListener('input',()=>{const v=parseInt(slider.value);valEl.textContent=v;afterEl.textContent=v;copyEl.textContent=v<before?'有一点变化，就已经很重要。':'没关系，找到不适合的方法也是进展。';});
+      document.querySelectorAll('.radio-opt').forEach(btn=>{btn.addEventListener('click',()=>{document.querySelectorAll('.radio-opt').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');_feedbackRating=btn.dataset.val;document.getElementById('helpGroup').classList.remove('error');document.getElementById('helpError').style.display='none';});});
+      document.getElementById('saveBtn').addEventListener('click',()=>{if(!_feedbackRating){document.getElementById('helpGroup').classList.add('error');document.getElementById('helpError').style.display='block';return;}const afterScore=parseInt(slider.value);const record={id:Date.now().toString(),date:new Date().toLocaleDateString('zh-CN'),keyword:state.answers.Q2||state.answers.Q1||'',primary_cause:state.aiResult?.primary_cause||'',anxiety_before:before,anxiety_after:afterScore,module_used:state.activeModule?.type||'',helpfulness:_feedbackRating};saveSession(record);navigate('home');});
+    }
+
+    // Global error handler — show friendly message if JS fails
+    window.addEventListener('error',function(e){
+      if(e.target===window){
+        console.error('CalmOS JS error:', e.message, e.filename, e.lineno);
+        var app=document.getElementById('app');
+        if(app&&app.querySelector('.screen')){
+          // Don't override existing screens, just log
+          return;
+        }
+        app.innerHTML='<div class="screen" style="justify-content:center;align-items:center;gap:24px"><div style="font-size:48px">💙</div><h2>出了个小问题</h2><p style="text-align:center">请刷新页面重试。如果持续出现，请截图发给开发者。</p><button class="btn btn-primary hand-font" onclick="location.reload()">刷新页面</button></div>';
+      }
+    });
+
+    (function init(){ var user=loadUser(); if(user){state.user=user;navigate('home');}else{navigate('onboarding');} })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>CalmOS · 潮流拼贴风</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&family=Noto+Sans+SC:wght@400;500;700;900&display=swap" rel="stylesheet"/>
+  <style>
+    /* ── Palette ──
+       Cream    #F5F0E8  bg
+       Sand     #E8E0D0  card bg
+       Charcoal #1C1C1C  ink / text
+       Rust     #C4614A  accent 1
+       Denim    #4A6FA5  accent 2
+       Straw    #D4A84B  accent 3 / highlight
+       Blush    #E8B4A0  soft accent
+    */
+    :root {
+      --cream:    #F5F0E8;
+      --sand:     #EDE8DF;
+      --paper:    #FDFAF5;
+      --charcoal: #1C1C1C;
+      --rust:     #C4614A;
+      --denim:    #4A6FA5;
+      --straw:    #D4A84B;
+      --blush:    #E8B4A0;
+      --muted:    #7A7268;
+      --border:   #1C1C1C;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #1C1C1C;
+      font-family: 'Noto Sans SC', sans-serif;
+      color: var(--charcoal);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .label {
+      text-align: center;
+      font-size: 13px;
+      color: #666;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+      font-family: 'Bangers', cursive;
+      font-size: 18px;
+      letter-spacing: 0.15em;
+      color: #aaa;
+    }
+
+    .phone {
+      max-width: 390px;
+      margin: 0 auto 60px;
+      background: var(--cream);
+      border-radius: 36px;
+      overflow: hidden;
+      box-shadow: 8px 8px 0px #000, 0 24px 64px rgba(0,0,0,0.4);
+    }
+
+    .screen { padding: 32px 24px 44px; }
+
+    /* ── Texture overlay on screen header area ── */
+    .screen-top {
+      position: relative;
+      margin: -32px -24px 28px;
+      padding: 32px 24px 24px;
+      background:
+        radial-gradient(circle at 80% 20%, rgba(212,168,75,0.12) 0%, transparent 50%),
+        radial-gradient(circle at 10% 80%, rgba(196,97,74,0.08) 0%, transparent 50%),
+        var(--sand);
+      border-bottom: 1.5px solid rgba(28,28,28,0.08);
+    }
+
+    /* ── Typography ── */
+    .display {
+      font-family: 'Bangers', cursive;
+      letter-spacing: 0.06em;
+      line-height: 1.1;
+    }
+
+    /* ── Avatar ── */
+    .home-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+    .avatar {
+      width: 56px; height: 56px;
+      border-radius: 14px;
+      background: var(--blush);
+      border: 1.5px solid var(--charcoal);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px;
+      flex-shrink: 0;
+      box-shadow: 2px 2px 0 var(--charcoal);
+    }
+    .greeting {
+      font-size: 22px;
+      font-weight: 900;
+      line-height: 1.2;
+      margin-bottom: 3px;
+    }
+    .subtext {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 500;
+      letter-spacing: 0.04em;
+    }
+
+    /* ── Tag strip ── */
+    .tag-strip {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .tag {
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border: 1.5px solid var(--charcoal);
+    }
+    .tag-rust  { background: var(--blush);  color: var(--charcoal); }
+    .tag-denim { background: #C5D3E8; color: var(--charcoal); }
+    .tag-straw { background: #F0E0A8; color: var(--charcoal); }
+
+    /* ── Main CTA ── */
+    .main-cta {
+      width: 100%;
+      padding: 18px 20px;
+      background: var(--charcoal);
+      border: none;
+      border-radius: 14px;
+      font-size: 17px;
+      font-weight: 900;
+      color: var(--cream);
+      cursor: pointer;
+      margin-bottom: 24px;
+      font-family: 'Bangers', cursive;
+      letter-spacing: 0.1em;
+      font-size: 22px;
+      position: relative;
+      transition: transform 0.1s;
+    }
+    .main-cta::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 14px;
+      box-shadow: 3px 3px 0 var(--rust);
+      pointer-events: none;
+    }
+
+    /* ── Section header ── */
+    .section-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(28,28,28,0.1);
+    }
+
+    /* ── History cards ── */
+    .hist-card {
+      background: var(--paper);
+      border-radius: 12px;
+      border: 1.5px solid rgba(28,28,28,0.1);
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hist-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: var(--rust);
+      border-radius: 3px 0 0 3px;
+    }
+    .hist-card:nth-child(2)::before { background: var(--denim); }
+    .h-left { font-size: 14px; font-weight: 700; }
+    .h-sub  { font-size: 11px; color: var(--muted); margin-top: 2px; font-weight: 500; }
+    .score-badge {
+      font-size: 13px;
+      font-weight: 900;
+      background: var(--straw);
+      color: var(--charcoal);
+      border-radius: 8px;
+      padding: 5px 10px;
+      border: 1.5px solid var(--charcoal);
+      font-family: 'Bangers', cursive;
+      letter-spacing: 0.06em;
+      white-space: nowrap;
+    }
+
+    /* ── Questionnaire ── */
+    .progress-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 28px;
+    }
+    .progress-bar {
+      flex: 1;
+      height: 5px;
+      background: rgba(28,28,28,0.1);
+      border-radius: 3px;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--rust);
+      border-radius: 3px;
+      width: 30%;
+    }
+    .q-counter {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      white-space: nowrap;
+    }
+    .q-text {
+      font-size: 21px;
+      font-weight: 900;
+      line-height: 1.4;
+      margin-bottom: 28px;
+      color: var(--charcoal);
+    }
+    .option {
+      width: 100%;
+      padding: 14px 18px;
+      border: 1.5px solid rgba(28,28,28,0.15);
+      border-radius: 12px;
+      background: var(--paper);
+      font-size: 14px;
+      font-weight: 500;
+      text-align: left;
+      cursor: pointer;
+      margin-bottom: 9px;
+      color: var(--charcoal);
+      font-family: inherit;
+      transition: all 0.15s;
+      position: relative;
+    }
+    .option.sel {
+      background: var(--blush);
+      border-color: var(--charcoal);
+      font-weight: 700;
+    }
+    .option.sel::before {
+      content: '✦';
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 12px;
+      color: var(--rust);
+    }
+
+    /* ── Result ── */
+    .cause-banner {
+      background: var(--rust);
+      color: var(--cream);
+      border-radius: 12px;
+      padding: 14px 18px;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .cause-icon { font-size: 28px; }
+    .cause-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; opacity: 0.8; margin-bottom: 2px; }
+    .cause-name {
+      font-family: 'Bangers', cursive;
+      font-size: 24px;
+      letter-spacing: 0.06em;
+    }
+
+    .result-summary {
+      font-size: 14px;
+      line-height: 1.8;
+      color: var(--charcoal);
+      margin-bottom: 18px;
+      font-weight: 400;
+    }
+
+    .evidence-row { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 22px; }
+    .pill {
+      padding: 5px 12px;
+      border-radius: 7px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1.5px solid rgba(28,28,28,0.15);
+      background: var(--paper);
+      color: var(--charcoal);
+    }
+
+    /* ── Module cards ── */
+    .module-card {
+      background: var(--paper);
+      border-radius: 14px;
+      border: 1.5px solid rgba(28,28,28,0.1);
+      padding: 18px;
+      margin-bottom: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+    .module-card::after {
+      content: '';
+      position: absolute;
+      top: 0; right: 0;
+      width: 80px; height: 80px;
+      border-radius: 0 0 0 80px;
+      background: rgba(212,168,75,0.12);
+    }
+    .module-card:nth-child(2)::after {
+      background: rgba(74,111,165,0.1);
+    }
+    .module-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .module-icon {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      background: var(--straw);
+      border: 1.5px solid var(--charcoal);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .module-card:nth-child(2) .module-icon { background: #C5D3E8; }
+    .module-name-wrap {}
+    .module-type { font-size: 10px; font-weight: 700; color: var(--muted); letter-spacing: 0.1em; text-transform: uppercase; }
+    .module-title { font-size: 15px; font-weight: 700; color: var(--charcoal); }
+    .module-reason {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.65;
+      margin-bottom: 14px;
+      font-weight: 400;
+    }
+    .module-btn {
+      width: 100%;
+      padding: 11px;
+      background: var(--charcoal);
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--cream);
+      cursor: pointer;
+      font-family: inherit;
+      letter-spacing: 0.04em;
+    }
+
+    .divider {
+      height: 1px;
+      background: rgba(28,28,28,0.08);
+      margin: 0 24px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="label">✦ Collage Style · Warm Streetwear ✦</div>
+
+  <div class="phone">
+
+    <!-- HOME -->
+    <div class="screen">
+      <div class="screen-top">
+        <div class="home-header">
+          <div class="avatar">🐱</div>
+          <div>
+            <div class="greeting">小明，晚上好</div>
+            <div class="subtext">今天感觉怎么样？</div>
+          </div>
+        </div>
+        <div class="tag-strip">
+          <span class="tag tag-rust">连续 3 天</span>
+          <span class="tag tag-denim">2 次完成</span>
+          <span class="tag tag-straw">焦虑 ↓ 32%</span>
+        </div>
+      </div>
+      <button class="main-cta">开始分析  →</button>
+      <div class="section-title">最近记录</div>
+      <div class="hist-card">
+        <div>
+          <div class="h-left">任务堆积型</div>
+          <div class="h-sub">06/08 · 季度汇报</div>
+        </div>
+        <div class="score-badge">8→4</div>
+      </div>
+      <div class="hist-card">
+        <div>
+          <div class="h-left">等待失控型</div>
+          <div class="h-sub">06/06 · 面试结果</div>
+        </div>
+        <div class="score-badge">7→5</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- QUESTIONNAIRE -->
+    <div class="screen">
+      <div class="progress-wrap">
+        <div class="progress-bar"><div class="progress-fill"></div></div>
+        <div class="q-counter">3 / 9</div>
+      </div>
+      <div class="q-text">这件事对你最近<br/>影响有多大？</div>
+      <button class="option">有一点影响，但还能正常做事</button>
+      <button class="option sel">有些影响，有时会分神</button>
+      <button class="option">影响比较大，经常难以集中注意力</button>
+      <button class="option">影响非常大，几乎做不了其他事</button>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- RESULT -->
+    <div class="screen">
+      <div class="cause-banner">
+        <div class="cause-icon">📋</div>
+        <div>
+          <div class="cause-label">识别结果</div>
+          <div class="cause-name">任务堆积型</div>
+        </div>
+      </div>
+      <div class="result-summary">
+        你对「季度汇报」的焦虑，主要来自任务一直没有启动——越拖越重，脑子里的预期压力已经远大于任务本身。
+      </div>
+      <div class="evidence-row">
+        <span class="pill">有任务未启动</span>
+        <span class="pill">持续好几周</span>
+        <span class="pill">注意力分散</span>
+      </div>
+      <div class="module-card">
+        <div class="module-top">
+          <div class="module-icon">⚡</div>
+          <div class="module-name-wrap">
+            <div class="module-type">行动计划</div>
+            <div class="module-title">把「季度汇报」拆成几步</div>
+          </div>
+        </div>
+        <div class="module-reason">你需要的不是更多思考，而是一个能立刻动手的最小步骤。</div>
+        <button class="module-btn">开始 →</button>
+      </div>
+      <div class="module-card">
+        <div class="module-top">
+          <div class="module-icon">🌬</div>
+          <div class="module-name-wrap">
+            <div class="module-type">呼吸稳定</div>
+            <div class="module-title">先让身体平静下来</div>
+          </div>
+        </div>
+        <div class="module-reason">3 分钟 4-7-8 呼吸，帮你从焦虑状态切换出来。</div>
+        <button class="module-btn">开始 →</button>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

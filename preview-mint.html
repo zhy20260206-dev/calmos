@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>CalmOS · 薄荷绿风格</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --mint: #A8D5BA;
+      --mint-lt: #D4EEE0;
+      --mint-dk: #7BBFA0;
+      --bg: #FAFAF8;
+      --card: #FFFFFF;
+      --text: #2D2D2D;
+      --muted: #888;
+      --radius: 16px;
+      --shadow: 0 2px 12px rgba(0,0,0,0.07);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #f0f0ee;
+      font-family: 'Noto Sans SC', sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    .label {
+      text-align: center;
+      font-size: 13px;
+      color: #999;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+    }
+    .phone {
+      max-width: 390px;
+      margin: 0 auto 60px;
+      background: var(--bg);
+      border-radius: 36px;
+      overflow: hidden;
+      box-shadow: 0 24px 64px rgba(0,0,0,0.13);
+      padding: 0;
+    }
+    .screen { padding: 32px 24px 40px; }
+
+    /* ── Home ── */
+    .home-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 36px;
+    }
+    .avatar {
+      width: 52px; height: 52px;
+      border-radius: 50%;
+      background: var(--mint-lt);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px;
+    }
+    .greeting { font-size: 19px; font-weight: 700; }
+    .subtext  { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+    .main-cta {
+      width: 100%;
+      padding: 18px;
+      background: var(--mint);
+      border: none;
+      border-radius: var(--radius);
+      font-size: 18px;
+      font-weight: 700;
+      color: #1a3a28;
+      cursor: pointer;
+      margin-bottom: 28px;
+      font-family: inherit;
+      letter-spacing: 0.02em;
+    }
+
+    .section-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 16px 18px;
+      margin-bottom: 10px;
+    }
+    .history-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .h-left { font-size: 14px; font-weight: 500; }
+    .h-sub  { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .h-score {
+      font-size: 13px;
+      background: var(--mint-lt);
+      color: #2D6B4A;
+      border-radius: 99px;
+      padding: 4px 10px;
+      font-weight: 600;
+    }
+
+    /* ── Questionnaire ── */
+    .progress-bar { height: 4px; background: #eee; border-radius: 2px; margin-bottom: 28px; }
+    .progress-fill { height: 100%; background: var(--mint); border-radius: 2px; width: 30%; }
+    .q-counter { font-size: 12px; color: var(--muted); margin-bottom: 16px; }
+    .q-text { font-size: 20px; font-weight: 700; line-height: 1.45; margin-bottom: 28px; }
+    .option {
+      width: 100%;
+      padding: 15px 18px;
+      border: 2px solid #eee;
+      border-radius: var(--radius);
+      background: var(--card);
+      font-size: 15px;
+      text-align: left;
+      cursor: pointer;
+      margin-bottom: 10px;
+      color: var(--text);
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+    .option.sel { border-color: var(--mint); background: var(--mint-lt); }
+
+    /* ── Result ── */
+    .result-tag {
+      display: inline-block;
+      background: var(--mint-lt);
+      color: #2D6B4A;
+      border-radius: 99px;
+      padding: 5px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    .result-summary {
+      font-size: 15px;
+      line-height: 1.75;
+      color: var(--text);
+      margin-bottom: 20px;
+    }
+    .evidence-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+    .pill {
+      background: #f0f0ee;
+      border-radius: 99px;
+      padding: 5px 12px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .module-card {
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 18px;
+      margin-bottom: 12px;
+    }
+    .module-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--mint-dk);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 6px;
+    }
+    .module-title { font-size: 17px; font-weight: 700; margin-bottom: 6px; }
+    .module-reason { font-size: 13px; color: var(--muted); line-height: 1.6; margin-bottom: 14px; }
+    .module-btn {
+      width: 100%;
+      padding: 12px;
+      background: var(--mint);
+      border: none;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #1a3a28;
+      cursor: pointer;
+      font-family: inherit;
+    }
+
+    .divider { height: 1px; background: #f0f0ee; margin: 24px 0; }
+  </style>
+</head>
+<body>
+
+  <div class="label">🌿 薄荷绿 · 治愈风</div>
+
+  <div class="phone">
+
+    <!-- HOME -->
+    <div class="screen">
+      <div class="home-header">
+        <div class="avatar">🐱</div>
+        <div>
+          <div class="greeting">小明，晚上好</div>
+          <div class="subtext">今天感觉怎么样？</div>
+        </div>
+      </div>
+      <button class="main-cta">开始分析</button>
+      <div class="section-title">最近记录</div>
+      <div class="card">
+        <div class="history-row">
+          <div>
+            <div class="h-left">任务堆积型</div>
+            <div class="h-sub">2026/06/08 · 季度汇报</div>
+          </div>
+          <div class="h-score">8 → 4</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="history-row">
+          <div>
+            <div class="h-left">等待失控型</div>
+            <div class="h-sub">2026/06/06 · 面试结果</div>
+          </div>
+          <div class="h-score">7 → 5</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- QUESTIONNAIRE -->
+    <div class="screen">
+      <div class="progress-bar"><div class="progress-fill"></div></div>
+      <div class="q-counter">3 / 9</div>
+      <div class="q-text">这件事对你最近的影响有多大？</div>
+      <button class="option">有一点影响，但还能正常做事</button>
+      <button class="option sel">有些影响，有时会分神</button>
+      <button class="option">影响比较大，经常难以集中注意力</button>
+      <button class="option">影响非常大，几乎做不了其他事</button>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- RESULT -->
+    <div class="screen">
+      <div class="result-tag">任务堆积型</div>
+      <div class="result-summary">
+        你对「季度汇报」的焦虑，主要来自任务一直没有启动——越拖越重，脑子里的预期压力已经远大于任务本身。加上你提到影响比较大，说明这件事已经开始消耗日常注意力了。
+      </div>
+      <div class="evidence-row">
+        <span class="pill">有任务未启动</span>
+        <span class="pill">持续好几周</span>
+        <span class="pill">注意力分散</span>
+      </div>
+      <div class="module-card">
+        <div class="module-name">行动计划</div>
+        <div class="module-title">把「季度汇报」拆成几步</div>
+        <div class="module-reason">你需要的不是更多思考，而是一个能立刻动手的最小步骤。</div>
+        <button class="module-btn">开始 →</button>
+      </div>
+      <div class="module-card">
+        <div class="module-name">呼吸稳定</div>
+        <div class="module-title">先让身体平静下来</div>
+        <div class="module-reason">3 分钟 4-7-8 呼吸，帮你从焦虑状态切换出来。</div>
+        <button class="module-btn">开始 →</button>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

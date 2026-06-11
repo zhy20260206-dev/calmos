@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>CalmOS · 手绘马卡龙风</title>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=ZCOOL+KuaiLe&family=Noto+Sans+SC:wght@400;500;600;700;900&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --mac-yellow:    #FFEAA7;
+      --mac-yellow-lt: #FFF8DC;
+      --mac-mint:      #A8E6CF;
+      --mac-mint-lt:   #DCF8ED;
+      --mac-green:     #B5EAD7;
+      --mac-green-dk:  #6ECBA4;
+      --mac-blue:      #A8D8EA;
+      --mac-blue-lt:   #DDF0F7;
+      --mac-blue-dk:   #6EBBD4;
+      /* Accent pops */
+      --pop-coral:     #FFB4A2;
+      --pop-coral-lt:  #FFE4DE;
+      --pop-lavender:  #C5B4E3;
+      --pop-lavender-lt:#EDE6F7;
+      --pop-peach:     #FFDAB9;
+      /* Neutrals */
+      --bg:            #FFFDF9;
+      --card:          #FFFFFF;
+      --ink:           #3E3640;
+      --muted:         #9B929B;
+      --radius:        16px;
+      /* Hand-drawn effect */
+      --sketch-offset: 3px;
+    }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body {
+      background: #F5F0EB;
+      font-family: 'Noto Sans SC', sans-serif;
+      color: var(--ink);
+      min-height: 100vh;
+      padding: 40px 20px;
+      background-image:
+        radial-gradient(circle at 10% 20%, rgba(168,230,207,0.15) 0%, transparent 30%),
+        radial-gradient(circle at 85% 70%, rgba(168,216,234,0.15) 0%, transparent 30%),
+        radial-gradient(circle at 50% 50%, rgba(255,234,167,0.1) 0%, transparent 40%);
+    }
+
+    /* ── Hand-drawn utility classes ── */
+    .hand-font {
+      font-family: 'Nunito', 'ZCOOL KuaiLe', 'Noto Sans SC', sans-serif;
+    }
+    .sketch-border {
+      border: 2.5px solid var(--ink);
+      border-radius: var(--radius) var(--radius) var(--radius) var(--radius);
+      box-shadow:
+        3px 3px 0px rgba(62,54,64,0.08),
+        inset 0 0 0 0px var(--ink);
+    }
+    .sketch-badge {
+      border: 2px solid var(--ink);
+      border-radius: 8px 8px 8px 0;
+      font-weight: 800;
+      font-size: 11px;
+      letter-spacing: 0.04em;
+    }
+    .wiggle:hover {
+      animation: wiggle 0.3s ease;
+    }
+    @keyframes wiggle {
+      0%,100% { transform: rotate(0deg); }
+      25% { transform: rotate(0.5deg); }
+      75% { transform: rotate(-0.5deg); }
+    }
+
+    .label {
+      text-align: center;
+      font-size: 13px;
+      color: #B0A8B0;
+      letter-spacing: 0.12em;
+      margin-bottom: 28px;
+    }
+    .phone {
+      max-width: 390px;
+      margin: 0 auto 60px;
+      background: var(--bg);
+      border-radius: 32px;
+      overflow: hidden;
+      box-shadow:
+        6px 6px 0px rgba(62,54,64,0.07),
+        0 24px 60px rgba(62,54,64,0.10);
+      border: 2.5px solid var(--ink);
+    }
+
+    /* ── Screen wrapper ── */
+    .screen { padding: 26px 20px 44px; position: relative; }
+
+    /* ── Top banner area ── */
+    .screen-top {
+      margin: -26px -20px 24px;
+      padding: 34px 20px 24px;
+      background:
+        radial-gradient(circle at 80% 15%, var(--pop-coral-lt) 0%, transparent 55%),
+        radial-gradient(circle at 15% 80%, var(--mac-blue-lt) 0%, transparent 50%),
+        radial-gradient(circle at 60% 90%, var(--mac-mint-lt) 0%, transparent 45%),
+        #FFFEFB;
+      border-bottom: 2px dashed rgba(62,54,64,0.12);
+      position: relative;
+      overflow: hidden;
+    }
+    /* Doodle accents in banner */
+    .screen-top::before {
+      content: '✦';
+      position: absolute;
+      top: 14px; right: 50px;
+      font-size: 22px;
+      color: var(--mac-yellow);
+      text-shadow: 1px 1px 0 var(--ink);
+      transform: rotate(15deg);
+    }
+    .screen-top::after {
+      content: '~';
+      position: absolute;
+      bottom: 12px; left: 30px;
+      font-size: 28px;
+      color: var(--mac-mint);
+      text-shadow: 1px 1px 0 var(--ink);
+      transform: rotate(-10deg);
+    }
+
+    /* ── Doodle mascot blob ── */
+    .mascot {
+      position: absolute;
+      top: 12px;
+      right: 16px;
+      width: 48px;
+      height: 48px;
+      background: var(--pop-peach);
+      border: 2.5px solid var(--ink);
+      border-radius: 52% 48% 60% 40% / 48% 55% 45% 52%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      transform: rotate(5deg);
+      box-shadow: 2px 2px 0 rgba(62,54,64,0.1);
+    }
+    .mascot-eye {
+      position: absolute;
+      top: 12px; right: 14px;
+      width: 5px; height: 5px;
+      background: var(--ink);
+      border-radius: 50%;
+    }
+    .mascot-eye2 {
+      position: absolute;
+      top: 12px; right: 24px;
+      width: 5px; height: 5px;
+      background: var(--ink);
+      border-radius: 50%;
+    }
+
+    /* ── Home header ── */
+    .home-header { display: flex; align-items: flex-start; gap: 14px; }
+    .avatar {
+      width: 52px; height: 52px;
+      border-radius: 54% 46% 58% 42% / 46% 52% 48% 54%;
+      background: var(--mac-yellow);
+      border: 2.5px solid var(--ink);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px;
+      flex-shrink: 0;
+      transform: rotate(-3deg);
+      box-shadow: 2px 2px 0 rgba(62,54,64,0.08);
+    }
+    .greeting { font-size: 19px; font-weight: 900; line-height: 1.3; }
+    .subtext { font-size: 12px; color: var(--muted); margin-top: 3px; font-weight: 600; }
+
+    /* ── Tag doodles ── */
+    .tag-strip { display: flex; gap: 7px; margin-top: 14px; flex-wrap: wrap; }
+    .tag {
+      padding: 4px 10px;
+      border-radius: 8px 8px 8px 2px;
+      font-size: 11px;
+      font-weight: 700;
+      border: 2px solid var(--ink);
+    }
+    .tag-y { background: var(--mac-yellow); transform: rotate(-1deg); }
+    .tag-m { background: var(--mac-mint); transform: rotate(1deg); }
+    .tag-b { background: var(--mac-blue); transform: rotate(-2deg); }
+
+    /* ── Main CTA (hand-drawn button) ── */
+    .main-cta {
+      width: 100%;
+      padding: 16px;
+      background: var(--ink);
+      border: none;
+      border-radius: 14px 14px 14px 4px;
+      font-size: 18px;
+      font-weight: 800;
+      color: #fff;
+      cursor: pointer;
+      margin: 6px 0 24px;
+      font-family: 'Nunito', 'ZCOOL KuaiLe', 'Noto Sans SC', sans-serif;
+      letter-spacing: 0.05em;
+      box-shadow: 3px 3px 0 var(--mac-yellow);
+      transition: all 0.12s;
+      position: relative;
+    }
+    .main-cta::after {
+      content: ' →';
+      font-size: 20px;
+    }
+    .main-cta:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0 var(--mac-yellow); }
+
+    /* ── Section heading ── */
+    .section-head {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--muted);
+      letter-spacing: 0.1em;
+      margin-bottom: 12px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .section-head::after { content:''; flex:1; height: 2px; background-image: repeating-linear-gradient(90deg, rgba(62,54,64,0.12) 0px, rgba(62,54,64,0.12) 4px, transparent 4px, transparent 8px); }
+
+    /* ── History cards ── */
+    .hist-card {
+      background: var(--card);
+      border: 2.5px solid rgba(62,54,64,0.12);
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      transform: rotate(-0.3deg);
+      box-shadow: 2px 2px 0 rgba(62,54,64,0.04);
+    }
+    .hist-card:nth-child(3) { transform: rotate(0.4deg); }
+    .hist-card:nth-child(4) { transform: rotate(-0.2deg); }
+    .hist-card::before {
+      content: '';
+      position: absolute;
+      left: -1px; top: 8px; bottom: 8px;
+      width: 3px;
+      background: var(--mac-mint);
+      border-radius: 2px;
+    }
+    .hist-card:nth-child(3)::before { background: var(--mac-blue); }
+    .hist-card:nth-child(4)::before { background: var(--pop-coral); }
+    .h-left { font-size: 14px; font-weight: 700; }
+    .h-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+    .score-chip {
+      font-size: 13px;
+      font-weight: 800;
+      background: var(--mac-yellow);
+      border: 2px solid var(--ink);
+      border-radius: 8px;
+      padding: 4px 10px;
+      font-family: 'Nunito', sans-serif;
+      white-space: nowrap;
+      box-shadow: 1px 1px 0 rgba(62,54,64,0.1);
+    }
+
+    /* ── Questionnaire ── */
+    .progress-wrap { display: flex; align-items: center; gap: 10px; margin-bottom: 26px; }
+    .progress-bar { flex:1; height: 6px; background: rgba(62,54,64,0.08); border-radius: 3px; overflow: hidden; border: 1.5px solid rgba(62,54,64,0.1); }
+    .progress-fill { height:100%; background: var(--mac-mint); border-radius:2px; width:30%; }
+    .q-counter { font-size:11px; font-weight:800; color: var(--muted); white-space:nowrap; }
+    .q-doodle {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--mac-yellow-lt);
+      border: 2px solid var(--ink);
+      border-radius: 10px 10px 10px 2px;
+      padding: 3px 12px;
+      font-size: 11px;
+      font-weight: 800;
+      margin-bottom: 16px;
+      transform: rotate(-1deg);
+    }
+    .q-text { font-size: 20px; font-weight: 900; line-height: 1.45; margin-bottom: 24px; }
+    .option {
+      width:100%; padding: 14px 16px;
+      border: 2px solid rgba(62,54,64,0.12);
+      border-radius: 12px;
+      background: var(--card);
+      font-size:14px; font-weight:600;
+      text-align:left; cursor:pointer;
+      margin-bottom:9px;
+      color: var(--ink);
+      font-family: inherit;
+      transition: all 0.15s;
+      transform: rotate(-0.2deg);
+    }
+    .option:nth-child(even) { transform: rotate(0.3deg); }
+    .option.sel {
+      background: var(--mac-mint-lt);
+      border-color: var(--ink);
+      font-weight: 700;
+      transform: rotate(0deg) !important;
+      box-shadow: 2px 2px 0 rgba(62,54,64,0.1);
+    }
+
+    /* ── Result ── */
+    .cause-banner {
+      background: var(--pop-coral-lt);
+      color: var(--ink);
+      border-radius: 16px 16px 16px 4px;
+      padding: 16px 18px;
+      margin-bottom: 18px;
+      display: flex; align-items: center; gap: 14px;
+      border: 2.5px solid var(--ink);
+      transform: rotate(-0.5deg);
+      box-shadow: 3px 3px 0 var(--pop-coral);
+    }
+    .cause-icon { font-size: 30px; }
+    .cause-label { font-size: 10px; font-weight: 800; opacity: 0.7; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 2px; }
+    .cause-name {
+      font-size: 18px;
+      font-weight: 900;
+      font-family: 'Nunito', 'ZCOOL KuaiLe', sans-serif;
+    }
+    .result-summary {
+      font-size: 14px;
+      line-height: 1.8;
+      margin-bottom: 16px;
+      background: var(--card);
+      border: 2px dashed rgba(62,54,64,0.1);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+    .evidence-row { display: flex; flex-wrap:wrap; gap:6px; margin-bottom:20px; }
+    .pill {
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 700;
+      border: 2px solid var(--ink);
+      transform: rotate(-1deg);
+    }
+    .pill:nth-child(odd) { transform: rotate(1deg); }
+    .pill:nth-child(1) { background: var(--mac-yellow-lt); }
+    .pill:nth-child(2) { background: var(--mac-mint-lt); }
+    .pill:nth-child(3) { background: var(--pop-lavender-lt); }
+
+    /* ── Module cards ── */
+    .module-card {
+      background: var(--card);
+      border: 2.5px solid rgba(62,54,64,0.1);
+      border-radius: 16px 16px 16px 4px;
+      padding: 16px;
+      margin-bottom: 12px;
+      transform: rotate(0.3deg);
+      box-shadow: 2px 2px 0 rgba(62,54,64,0.05);
+      position: relative;
+    }
+    .module-card:nth-child(5) { transform: rotate(-0.4deg); }
+    .module-card-dot {
+      position: absolute;
+      top: 10px; right: 12px;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--pop-coral);
+    }
+    .module-card:nth-child(5) .module-card-dot { background: var(--mac-blue); }
+    .module-top { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+    .module-icon {
+      width: 40px; height: 40px;
+      border-radius: 12px 12px 12px 2px;
+      background: var(--mac-green);
+      border: 2.5px solid var(--ink);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+      transform: rotate(-5deg);
+    }
+    .module-card:nth-child(5) .module-icon {
+      background: var(--mac-blue-lt);
+    }
+    .module-type { font-size: 10px; font-weight: 800; color: var(--muted); letter-spacing: 0.08em; text-transform: uppercase; }
+    .module-title { font-size: 14px; font-weight: 700; }
+    .module-reason { font-size:12px; color: var(--muted); line-height:1.6; margin-bottom:12px; }
+    .module-btn {
+      width:100%; padding:11px;
+      background: var(--ink);
+      border:none; border-radius: 12px;
+      font-size: 13px; font-weight: 700;
+      color: #fff;
+      cursor:pointer;
+      font-family: 'Nunito', 'Noto Sans SC', sans-serif;
+      transition: all 0.15s;
+      box-shadow: 2px 2px 0 var(--mac-mint);
+    }
+    .module-btn:active { transform: translate(1px,1px); box-shadow: none; }
+    .module-card:nth-child(5) .module-btn { box-shadow: 2px 2px 0 var(--mac-blue); }
+
+    /* ── Doodle decorations ── */
+    .doodle-star {
+      position: absolute;
+      font-size: 16px;
+      color: var(--mac-yellow);
+      text-shadow: 1px 1px 0 var(--ink);
+    }
+
+    .divider-line {
+      height: 1px;
+      margin: 0 20px;
+      background-image: repeating-linear-gradient(90deg, rgba(62,54,64,0.08) 0px, rgba(62,54,64,0.08) 5px, transparent 5px, transparent 10px);
+    }
+
+    /* ── Spot color accents floating ── */
+    .spot { position: absolute; border-radius: 50%; pointer-events: none; z-index: 0; }
+    .spot-a { width: 18px; height: 18px; background: var(--mac-yellow); border: 2px solid var(--ink); top: 50px; left: 8px; }
+    .spot-b { width: 12px; height: 12px; background: var(--pop-coral); border: 2px solid var(--ink); top: 60px; right: 60px; }
+    .spot-c { width: 16px; height: 16px; background: var(--mac-mint); border: 2px solid var(--ink); bottom: 20px; right: 20px; }
+  </style>
+</head>
+<body>
+
+  <div class="label hand-font">✏️ Hand-drawn · Macaron Palette ✏️</div>
+
+  <div class="phone">
+
+    <!-- HOME -->
+    <div class="screen">
+      <div class="screen-top">
+        <div class="mascot">🐣</div>
+        <div class="home-header">
+          <div class="avatar">🐱</div>
+          <div>
+            <div class="greeting hand-font">小明，晚上好~</div>
+            <div class="subtext">今天感觉怎么样？</div>
+          </div>
+        </div>
+        <div class="tag-strip">
+          <span class="tag tag-y">🌿 连续 3 天</span>
+          <span class="tag tag-m">✅ 2 次完成</span>
+          <span class="tag tag-b">📉 焦虑↓32%</span>
+        </div>
+      </div>
+
+      <button class="main-cta hand-font">✨ 开始分析</button>
+
+      <div class="section-head">最近记录</div>
+      <div class="hist-card">
+        <div class="h-left">任务堆积型 <span class="h-sub">06/08 · 季度汇报</span></div>
+        <div class="score-chip">8→4</div>
+      </div>
+      <div class="hist-card">
+        <div class="h-left">等待失控型 <span class="h-sub">06/06 · 面试结果</span></div>
+        <div class="score-chip">7→5</div>
+      </div>
+    </div>
+
+    <div class="divider-line"></div>
+
+    <!-- QUESTIONNAIRE -->
+    <div class="screen">
+      <div class="progress-wrap">
+        <div class="progress-bar"><div class="progress-fill"></div></div>
+        <div class="q-counter">3 / 9</div>
+      </div>
+      <div class="q-doodle">✏️ Q3 · 影响评估</div>
+      <div class="q-text">这件事对你最近<br/>影响有多大？</div>
+      <button class="option">有一点影响，但还能正常做事</button>
+      <button class="option sel">有些影响，有时会分神</button>
+      <button class="option">影响比较大，经常难以集中注意力</button>
+      <button class="option">影响非常大，几乎做不了其他事</button>
+    </div>
+
+    <div class="divider-line"></div>
+
+    <!-- RESULT -->
+    <div class="screen">
+      <div class="cause-banner">
+        <div class="cause-icon">📋</div>
+        <div>
+          <div class="cause-label">识别结果</div>
+          <div class="cause-name">任务堆积型</div>
+        </div>
+      </div>
+
+      <div class="result-summary">
+        你对「季度汇报」的焦虑，主要来自任务一直没有启动——<br/>越拖越重，脑子里的预期压力已经远大于任务本身。
+      </div>
+
+      <div class="evidence-row">
+        <span class="pill">有任务未启动</span>
+        <span class="pill">持续好几周</span>
+        <span class="pill">注意力分散</span>
+      </div>
+
+      <div class="module-card">
+        <div class="module-card-dot"></div>
+        <div class="module-top">
+          <div class="module-icon">⚡</div>
+          <div>
+            <div class="module-type">行动计划</div>
+            <div class="module-title">把「季度汇报」拆成几步</div>
+          </div>
+        </div>
+        <div class="module-reason">你需要的不是更多思考，而是一个能立刻动手的最小步骤。</div>
+        <button class="module-btn hand-font">Go 开始 →</button>
+      </div>
+
+      <div class="module-card">
+        <div class="module-card-dot"></div>
+        <div class="module-top">
+          <div class="module-icon">🌬</div>
+          <div>
+            <div class="module-type">呼吸稳定</div>
+            <div class="module-title">先让身体平静下来</div>
+          </div>
+        </div>
+        <div class="module-reason">3 分钟 4-7-8 呼吸，帮你从焦虑状态切换出来。</div>
+        <button class="module-btn hand-font">Go 开始 →</button>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

@@ -1018,7 +1018,7 @@
       }
     });
 
-    (function init(){ var user=loadUser(); if(user){state.user=user;navigate('home');}else{navigate('onboarding');} })();
+    (function init(){ var user=loadUser(); if(user){if(!user.deviceToken){user.deviceToken=getDeviceToken();saveUser(user.nickname,user.emoji);}state.user=user;navigate('home');}else{navigate('onboarding');} })();
   </script>
 </body>
 </html>

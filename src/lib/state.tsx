@@ -34,15 +34,8 @@ function reducer(state: AppState, action: AppAction): AppState {
   }
 }
 
-// API endpoint selector
-function getAPIBase(): string {
-  if (typeof window !== 'undefined') {
-    if (location.hostname === 'localhost' || location.hostname === '127.0.0.1') {
-      return '/api/analyze';
-    }
-  }
-  return 'https://rjxbcxcnjnwplroytnan.supabase.co/functions/v1/analyze';
-}
+// API endpoint — always use the local Next.js API route.
+// Key and prompt are server-side only, never exposed to the browser.
 
 interface AppContextType {
   state: AppState;
@@ -120,7 +113,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
       } else {
         // Start analysis
         const userMsg = buildUserMessage(newAnswers);
-        fetch(getAPIBase(), {
+        fetch('/api/analyze', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ userMessage: userMsg }),

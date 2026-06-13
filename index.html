@@ -452,14 +452,37 @@
     let _interval = null;
     function clearGuard() { if(_interval){clearInterval(_interval);_interval=null;} }
 
+    // Generate a unique device token for user data isolation
+    // This token is a random UUID stored in localStorage, used as the real user_id
+    // in Supabase queries. Unlike nickname, it's unguessable and won't collide.
+    function getDeviceToken() {
+      let token = localStorage.getItem('calmos_device_token');
+      if (!token) {
+        token = 'dev_' + crypto.randomUUID();
+        localStorage.setItem('calmos_device_token', token);
+      }
+      return token;
+    }
     function loadUser() { try{return JSON.parse(localStorage.getItem('calmos_user'))||null;}catch{return null;} }
-    function saveUser(nickname, emoji) { localStorage.setItem('calmos_user', JSON.stringify({nickname,emoji})); }
+    function saveUser(nickname, emoji) {
+      const deviceToken = getDeviceToken();
+      localStorage.setItem('calmos_user', JSON.stringify({nickname,emoji,deviceToken}));
+    }
+    function currentUserId() {
+      return (state.user && state.user.deviceToken) || getDeviceToken();
+    }
 
     async function loadSessions() {
       const local=JSON.parse(localStorage.getItem('calmos_sessions')||'[]');
       if(!_supabase) return local;
       try{
-        const{data,error}=await _supabase.from('calmos_sessions').select('*').order('created_at',{ascending:false}).limit(10);
+        // Filter by device token — ensures users only see their own sessions
+        const uid = currentUserId();
+        const{data,error}=await _supabase.from('calmos_sessions')
+          .select('*')
+          .eq('user_id', uid)
+          .order('created_at',{ascending:false})
+          .limit(10);
         if(error) throw error;
         const cloud=(data||[]).map(r=>({
           id:r.id,date:r.date,keyword:r.keyword,primary_cause:r.primary_cause,
@@ -486,7 +509,7 @@
       // Dual-write to Supabase in background (non-blocking)
       if(!_supabase) return;
       _supabase.from('calmos_sessions').insert({
-        id:record.id, user_id:state.user?.nickname||'anonymous',
+        id:record.id, user_id:currentUserId(), nickname:state.user?.nickname||'',
         date:record.date, keyword:record.keyword||'', primary_cause:record.primary_cause||'',
         anxiety_before:record.anxiety_before, anxiety_after:record.anxiety_after,
         module_used:record.module_used, helpfulness:record.helpfulness,
@@ -603,7 +626,7 @@
         const nickname=input.value.trim();
         if(nickname.length<2||nickname.length>8){input.classList.add('error');errEl.textContent='昵称需要 2–8 个字哦';errEl.style.display='block';return;}
         input.classList.remove('error');errEl.style.display='none';
-        saveUser(nickname,_selectedEmoji); state.user={nickname,emoji:_selectedEmoji}; navigate('home');
+        saveUser(nickname,_selectedEmoji); state.user={nickname,emoji:_selectedEmoji,deviceToken:getDeviceToken()}; navigate('home');
       });
       document.getElementById('nicknameInput').addEventListener('input',()=>{document.getElementById('nicknameInput').classList.remove('error');document.getElementById('nicknameError').style.display='none';});
     }
